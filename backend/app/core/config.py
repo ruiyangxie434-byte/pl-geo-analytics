@@ -6,11 +6,13 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     app_name: str = "PL Geo Analytics API"
     app_env: str = "development"
-    app_version: str = "0.1.0"
+    app_version: str = "0.2.0"
     debug: bool = True
     api_prefix: str = "/api"
     frontend_origins: str = "http://localhost:3000"
     database_url: str = "sqlite:///./pl_geo_analytics.db"
+    auto_create_database: bool = True
+    seed_sample_data: bool = True
 
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -16,7 +16,7 @@ def test_health_check_returns_unified_response() -> None:
             "service": "PL Geo Analytics API",
             "status": "healthy",
             "environment": "development",
-            "version": "0.1.0",
+            "version": "0.2.0",
         },
     }
 

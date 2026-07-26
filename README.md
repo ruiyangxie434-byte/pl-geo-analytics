@@ -7,7 +7,7 @@
 
 ## 当前进度
 
-当前版本：`v0.1.0 / 阶段 1：项目初始化`
+当前版本：`v0.2.0 / 阶段 2：测试数据和数据库`
 
 - [x] Next.js + TypeScript + Tailwind CSS 前端骨架
 - [x] FastAPI 后端骨架
@@ -16,19 +16,26 @@
 - [x] 前端后端连通状态展示
 - [x] 环境变量示例
 - [x] Windows 本地开发说明
-- [ ] 数据库模型与测试数据（阶段 2）
+- [x] SQLite + SQLAlchemy 数据层
+- [x] Alembic 初始迁移
+- [x] 球队、球员、积分榜、比赛与事件关系模型
+- [x] 5 支球队、10 名球员与积分榜样例切片
+- [x] 球队列表、球队详情与积分榜 API
+- [x] 首页阶段 2 数据展示、加载、错误和重试状态
 - [ ] 英格兰球队地图（阶段 3）
 - [ ] 球队、积分榜、球员与比赛分析（后续阶段）
 
-首页当前只是一张初始化状态页，不提前伪造地图、积分榜或球员数据。
+当前页面展示的是明确标记为 `sample` 的 2024-25
+赛季小型结构演示切片，用于验证数据库、接口和前端数据流，不代表实时或完整的
+20 队英超数据。
 
 ## 技术栈
 
 | 层级 | 技术 |
 | --- | --- |
 | 前端 | Next.js、React、TypeScript、Tailwind CSS |
-| 后端 | Python、FastAPI、Pydantic |
-| 数据库 | 阶段 2 先接入 SQLite，结构保留 PostgreSQL 切换能力 |
+| 后端 | Python、FastAPI、Pydantic、SQLAlchemy、Alembic |
+| 数据库 | SQLite（开发），通过 `DATABASE_URL` 保留 PostgreSQL 切换能力 |
 | 后续可视化 | React Leaflet、Apache ECharts、mplsoccer、Matplotlib |
 
 ## 系统关系
@@ -82,9 +89,18 @@ Copy-Item .env.example .env
 uvicorn app.main:app --reload --port 8000
 ```
 
+首次启动时会自动建表并写入幂等样例数据。也可以手动执行：
+
+```powershell
+python -m app.database.init_db
+```
+
 验证地址：
 
 - 健康检查：<http://127.0.0.1:8000/api/health>
+- 球队列表：<http://127.0.0.1:8000/api/clubs>
+- Liverpool 详情：<http://127.0.0.1:8000/api/clubs/liverpool>
+- 积分榜切片：<http://127.0.0.1:8000/api/standings?season=2024-25>
 - Swagger 文档：<http://127.0.0.1:8000/docs>
 
 ### 2. 启动前端
@@ -99,6 +115,23 @@ npm run dev
 ```
 
 打开 <http://localhost:3000>。页面应显示“后端连接正常”。
+
+## 数据库命令
+
+在 `backend/` 且虚拟环境已激活时运行：
+
+```powershell
+# 初始化本地数据库并检查样例数据
+python -m app.database.init_db
+
+# 按迁移升级数据库
+alembic upgrade head
+
+# 查看当前迁移版本
+alembic current
+```
+
+日常启动后端不需要重复执行这些命令；初始化脚本是幂等的。
 
 ## 测试与构建
 
@@ -127,12 +160,13 @@ npm run build
 - 每一阶段使用短期分支，例如 `chore/stage-01-init`、`feat/stage-02-data-api`。
 - 分支合并后可以删除；阶段成果使用 Git 标签保留，例如 `v0.1.0`。
 
-阶段 1 推荐提交：
+阶段 2 推荐提交：
 
 ```text
-chore: initialize Next.js and FastAPI project
+feat: add stage 2 football data API
 ```
 
 ## 许可证与数据来源
 
-项目代码许可证和正式数据来源将在引入公开数据前确定。不要提交未经授权的官方徽章、球员照片或受版权保护的数据文件。
+项目代码许可证和正式数据来源将在引入完整公开数据前确定。当前样例用于结构与界面验证，字段均带有
+`source_kind=sample`。不要提交未经授权的官方徽章、球员照片或受版权保护的数据文件。

@@ -1,22 +1,23 @@
 import Link from "next/link";
 
+import { StageTwoData } from "../components/data/stage-two-data";
 import { BackendStatus } from "../components/system/backend-status";
 
 const futureModules = [
-  {
-    phase: "阶段 2",
-    title: "数据与数据库",
-    description: "球队、球员、积分榜及比赛事件的可追溯数据层。",
-  },
   {
     phase: "阶段 3",
     title: "英格兰地图",
     description: "从球场地理位置进入每一支英超球队的故事。",
   },
   {
+    phase: "阶段 4",
+    title: "球队详情",
+    description: "阵容、赛季概况、近期赛果与可排序完整积分榜。",
+  },
+  {
     phase: "阶段 5–7",
-    title: "足球数据分析",
-    description: "每 90 分钟指标、球员雷达对比和示例比赛射门图。",
+    title: "球员与比赛分析",
+    description: "每 90 分钟指标、球员雷达对比与示例比赛射门图。",
   },
 ];
 
@@ -34,7 +35,7 @@ export default function Home() {
               <small>英超地理探索与球员数据分析平台</small>
             </span>
           </Link>
-          <span className="phase-badge">v0.1.0 · 阶段 1</span>
+          <span className="phase-badge">v0.2.0 · 阶段 2</span>
         </header>
 
         <section className="hero" aria-labelledby="hero-title">
@@ -45,20 +46,20 @@ export default function Home() {
               <span>读懂球场上的数据。</span>
             </h1>
             <p className="hero-description">
-              第一阶段已建立可运行的 Next.js 与 FastAPI
-              骨架。真实球队、球员和比赛数据将在后续阶段逐步接入，当前页面不使用伪造业务数据。
+              现在项目已经拥有可迁移的 SQLite 数据层、球队与球员模型，以及从
+              FastAPI 实时读取的积分榜样例。下一步将把球场坐标放到英格兰地图上。
             </p>
             <div className="hero-actions">
+              <a className="primary-button" href="#data-preview">
+                查看阶段 2 数据
+              </a>
               <a
-                className="primary-button"
+                className="secondary-button"
                 href="http://127.0.0.1:8000/docs"
                 target="_blank"
                 rel="noreferrer"
               >
                 打开 API 文档
-              </a>
-              <a className="secondary-button" href="#roadmap">
-                查看下一步
               </a>
             </div>
           </div>
@@ -66,13 +67,15 @@ export default function Home() {
           <BackendStatus />
         </section>
 
+        <StageTwoData />
+
         <section className="module-section" id="roadmap" aria-labelledby="roadmap-title">
           <div className="section-heading">
             <div>
               <p className="eyebrow">BUILD ROADMAP</p>
-              <h2 id="roadmap-title">第一版核心模块</h2>
+              <h2 id="roadmap-title">接下来做什么</h2>
             </div>
-            <p>先确保每一层可运行，再逐步增加真实数据和交互。</p>
+            <p>阶段 2 已完成，后续界面全部复用这一套数据库与 API。</p>
           </div>
 
           <div className="module-grid">

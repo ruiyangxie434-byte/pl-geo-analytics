@@ -38,7 +38,7 @@ export function BackendStatus() {
     },
     success: {
       title: "后端连接正常",
-      description: "前端已成功读取 /api/health。",
+      description: "数据接口与 SQLite 已准备就绪。",
     },
     error: {
       title: "暂未连接后端",
@@ -77,7 +77,7 @@ export function BackendStatus() {
           </div>
           <div className="status-row">
             <span>版本</span>
-            <strong>{health?.version ?? "0.1.0"}</strong>
+            <strong>{health?.version ?? "0.2.0"}</strong>
           </div>
         </div>
       </div>
