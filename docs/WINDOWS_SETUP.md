@@ -1,10 +1,10 @@
-# 阶段 1：Windows 初始化与验证
+# 阶段 2：Windows 启动与验证
 
 本文以 PowerShell 为例。命令前的“运行目录”很重要；如果目录不对，命令即使没有拼错也会失败。
 
 ## 1. 最终目录结构
 
-以下是第一版完成时的目标结构。带“后续”字样的业务文件不会在阶段 1 提前创建。
+以下是当前阶段与第一版目标结构。带“后续”字样的页面会在后续阶段创建。
 
 ```text
 pl-geo-analytics/
@@ -20,6 +20,7 @@ pl-geo-analytics/
 │   │   ├── layout.tsx
 │   │   └── page.tsx
 │   ├── components/
+│   │   ├── data/                            # 阶段 2 数据展示
 │   │   ├── charts/                          # 后续
 │   │   ├── clubs/                           # 后续
 │   │   ├── layout/                          # 后续
@@ -44,6 +45,8 @@ pl-geo-analytics/
 │   │   ├── utils/
 │   │   └── main.py
 │   ├── tests/
+│   ├── migrations/
+│   ├── alembic.ini
 │   ├── .env.example
 │   ├── pyproject.toml
 │   └── requirements.txt
@@ -74,7 +77,7 @@ pl-geo-analytics/
 
 ## 3. 需要提前安装的软件
 
-### 阶段 1 必装
+### 当前阶段必装
 
 | 软件 | 建议版本 | 用途 |
 | --- | --- | --- |
@@ -92,13 +95,13 @@ VS Code 建议扩展：
 - Tailwind CSS IntelliSense
 - GitLens（可选）
 
-### 阶段 2 再安装也可以
+### 后续再安装也可以
 
 - PostgreSQL（正式数据库）
 - DBeaver 或 pgAdmin（二选一即可）
 - Postman（Swagger 已能测试 API，所以不是必需）
 
-先用 SQLite 完成阶段 2 可以减少环境配置压力；SQLite 不需要单独安装。
+当前已使用 SQLite，因此不需要单独安装数据库软件。
 
 安装后在 PowerShell 验证：
 
@@ -158,6 +161,12 @@ Copy-Item .env.example .env
 
 看到命令行开头出现 `(.venv)`，说明虚拟环境已激活。
 
+首次初始化数据库（可选，正常启动后端也会自动完成）：
+
+```powershell
+python -m app.database.init_db
+```
+
 启动后端：
 
 ```powershell
@@ -190,6 +199,8 @@ npm run dev
 | `.\.venv\Scripts\Activate.ps1` | `pl-geo-analytics/backend/` |
 | `pip install -r requirements.txt` | `pl-geo-analytics/backend/`，且已激活虚拟环境 |
 | `uvicorn app.main:app --reload --port 8000` | `pl-geo-analytics/backend/` |
+| `python -m app.database.init_db` | `pl-geo-analytics/backend/` |
+| `alembic upgrade head` | `pl-geo-analytics/backend/` |
 | `pytest` | `pl-geo-analytics/backend/` |
 
 ## 6. 初始化完成后的验证
@@ -206,12 +217,17 @@ npm run dev
     "service": "PL Geo Analytics API",
     "status": "healthy",
     "environment": "development",
-    "version": "0.1.0"
+    "version": "0.2.0"
   }
 }
 ```
 
-打开 <http://127.0.0.1:8000/docs>，应看到 FastAPI 自动生成的 Swagger 页面和 `GET /api/health`。
+打开 <http://127.0.0.1:8000/docs>，应看到 FastAPI 自动生成的 Swagger 页面，以及：
+
+- `GET /api/health`
+- `GET /api/clubs`
+- `GET /api/clubs/{slug}`
+- `GET /api/standings`
 
 在 `backend/` 运行：
 
@@ -219,16 +235,19 @@ npm run dev
 pytest
 ```
 
-应显示 2 个测试通过。
+应显示 7 个测试通过。
 
 ### 前端
 
 打开 <http://localhost:3000>，应满足：
 
 - 页面显示 `PL Geo Analytics`。
-- 显示“v0.1.0 · 阶段 1”。
+- 显示“v0.2.0 · 阶段 2”。
 - 后端运行时显示“后端连接正常”。
+- 显示 5 支球队的球场信息和积分榜样例切片。
+- 点击球队卡片时，球场坐标和积分榜高亮同步变化。
 - 停止后端并刷新页面时显示“暂未连接后端”，页面本身不崩溃。
+- 阶段 2 区域显示友好错误提示，并可点击“重新连接”。
 - 手机宽度下页面不出现明显横向溢出。
 
 在 `frontend/` 运行：
@@ -252,58 +271,32 @@ git check-ignore backend\.env
 
 后两条命令应输出对应文件路径，表示真实环境变量不会被提交。
 
-## 7. 阶段 1 创建的文件
-
-### 根目录
-
-- `.editorconfig`
-- `.env.example`
-- `.gitignore`
-- `README.md`
-- `PROJECT_PLAN.md`
-- `docs/WINDOWS_SETUP.md`
+## 7. 阶段 2 主要新增文件
 
 ### 前端
 
-- `frontend/package.json`
-- `frontend/tsconfig.json`
-- `frontend/next.config.ts`
-- `frontend/postcss.config.mjs`
-- `frontend/eslint.config.mjs`
-- `frontend/.env.example`
-- `frontend/app/layout.tsx`
-- `frontend/app/page.tsx`
-- `frontend/app/globals.css`
-- `frontend/components/system/backend-status.tsx`
+- `frontend/components/data/stage-two-data.tsx`
 - `frontend/services/api.ts`
 - `frontend/types/api.ts`
-- `frontend/public/.gitkeep`
-
-手动创建项目时，`npm install` 会生成 `frontend/package-lock.json`；使用本仓库时由 `npm ci` 按锁文件安装。锁文件必须提交，`frontend/node_modules/` 不提交。
+- `frontend/app/page.tsx`
+- `frontend/app/globals.css`
 
 ### 后端
 
-- `backend/requirements.txt`
-- `backend/pyproject.toml`
-- `backend/.env.example`
-- `backend/app/main.py`
-- `backend/app/api/router.py`
-- `backend/app/api/routes/health.py`
-- `backend/app/core/config.py`
-- `backend/app/schemas/common.py`
-- `backend/app/schemas/health.py`
-- 各 Python 包的 `__init__.py`
-- `backend/tests/test_health.py`
+- `backend/app/models/` 中 6 个关系模型
+- `backend/app/database/session.py`
+- `backend/app/database/seed.py`
+- `backend/app/database/init_db.py`
+- `backend/app/api/routes/clubs.py`
+- `backend/app/api/routes/standings.py`
+- `backend/app/schemas/club.py`
+- `backend/app/schemas/standing.py`
+- `backend/migrations/`
+- `backend/tests/test_data_api.py`
 
-### 数据与说明
-
-- `data/README.md`
-- `data/raw/.gitkeep`
-- `data/processed/.gitkeep`
-- `data/geo/.gitkeep`
-- `data/sample/.gitkeep`
-- `notebooks/README.md`
-- `scripts/README.md`
+数据库文件 `backend/pl_geo_analytics.db` 是本地生成文件，已被 `.gitignore`
+排除，不应上传 GitHub。样例数据由幂等初始化脚本写入，说明见
+`data/SAMPLE_DATA.md`。
 
 ## 8. Git 分支建议
 
@@ -313,9 +306,9 @@ git check-ignore backend\.env
 
 ```text
 main                         始终可运行
-chore/stage-01-init          当前初始化工作
+chore/stage-01-init          已完成的初始化工作
 feat/stage-02-data-api       数据库、测试数据和基础 API
-feat/stage-03-map-home       地图首页
+feat/stage-03-map-home       下一步：地图首页
 feat/stage-04-club-standing  球队详情和积分榜
 feat/stage-05-player-stats   球员数据
 feat/stage-06-radar          雷达图
@@ -323,33 +316,33 @@ feat/stage-07-match-analysis 示例比赛
 chore/stage-08-polish        测试、文档和适配
 ```
 
-阶段 1 的操作：
+如果阶段 1 已在 `main`，阶段 2 的操作：
 
 ```powershell
-git switch -c chore/stage-01-init
+git switch -c feat/stage-02-data-api
 git add .
 git status
-git commit -m "chore: initialize Next.js and FastAPI project"
+git commit -m "feat: add stage 2 football data API"
 git switch main
-git merge --no-ff chore/stage-01-init
-git tag v0.1.0
+git merge --no-ff feat/stage-02-data-api
+git tag v0.2.0
 ```
 
-如果这是第一次提交、`main` 还没有任何提交，可以直接先在 `main` 提交，再从阶段 2 开始使用功能分支。
+如果当前修改已经直接发生在 `main`，也可以直接提交，不需要为了形式重新复制分支。
 
-## 9. 阶段 1 提交信息
+## 9. 阶段 2 提交信息
 
 推荐唯一主提交：
 
 ```text
-chore: initialize Next.js and FastAPI project
+feat: add stage 2 football data API
 ```
 
 如果希望拆成两个更清楚的提交：
 
 ```text
-chore: scaffold Next.js frontend
-chore: add FastAPI health check and project docs
+feat: add SQLAlchemy models, migration and sample seed
+feat: connect club and standings data to homepage
 ```
 
 提交前一定先运行前端构建、后端测试和 `git status`，确认没有 `.env`、数据库文件或 `node_modules`。

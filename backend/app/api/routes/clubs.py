@@ -1,0 +1,94 @@
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import func, select
+from sqlalchemy.orm import Session, selectinload
+
+from app.database.session import get_db
+from app.models import Club, Player
+from app.schemas.club import (
+    ClubDetail,
+    ClubListData,
+    ClubSummary,
+    PlayerSummary,
+    StadiumData,
+)
+from app.schemas.common import ApiResponse
+
+router = APIRouter(prefix="/clubs", tags=["clubs"])
+
+SAMPLE_NOTICE = "当前返回 5 支球队的结构演示样例，不代表实时或完整英超数据。"
+
+
+def to_club_summary(club: Club) -> ClubSummary:
+    return ClubSummary(
+        id=club.id,
+        name=club.name,
+        short_name=club.short_name,
+        slug=club.slug,
+        city=club.city,
+        stadium=StadiumData(
+            name=club.stadium_name,
+            latitude=club.stadium_latitude,
+            longitude=club.stadium_longitude,
+        ),
+        founded_year=club.founded_year,
+        primary_color=club.primary_color,
+        source_kind=club.source_kind,
+    )
+
+
+@router.get("", response_model=ApiResponse[ClubListData])
+def list_clubs(
+    limit: int = Query(default=20, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
+    db: Session = Depends(get_db),
+) -> ApiResponse[ClubListData]:
+    clubs = db.scalars(
+        select(Club).order_by(Club.name).offset(offset).limit(limit)
+    ).all()
+    total = db.scalar(select(func.count(Club.id))) or 0
+    player_total = db.scalar(select(func.count(Player.id))) or 0
+
+    return ApiResponse(
+        message="球队列表获取成功",
+        data=ClubListData(
+            items=[to_club_summary(club) for club in clubs],
+            total=total,
+            player_total=player_total,
+            limit=limit,
+            offset=offset,
+            sample_notice=SAMPLE_NOTICE,
+        ),
+    )
+
+
+@router.get("/{slug}", response_model=ApiResponse[ClubDetail])
+def get_club(
+    slug: str,
+    db: Session = Depends(get_db),
+) -> ApiResponse[ClubDetail]:
+    club = db.scalar(
+        select(Club)
+        .options(selectinload(Club.players))
+        .where(Club.slug == slug)
+    )
+    if club is None:
+        raise HTTPException(status_code=404, detail="未找到该球队")
+
+    summary = to_club_summary(club)
+    return ApiResponse(
+        message="球队详情获取成功",
+        data=ClubDetail(
+            **summary.model_dump(),
+            players=[
+                PlayerSummary.model_validate(player)
+                for player in sorted(
+                    club.players,
+                    key=lambda item: (
+                        item.position,
+                        item.shirt_number or 999,
+                        item.full_name,
+                    ),
+                )
+            ],
+        ),
+    )
