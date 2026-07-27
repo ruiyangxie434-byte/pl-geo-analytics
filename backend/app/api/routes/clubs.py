@@ -15,7 +15,7 @@ from app.schemas.common import ApiResponse
 
 router = APIRouter(prefix="/clubs", tags=["clubs"])
 
-SAMPLE_NOTICE = "当前返回 5 支球队的结构演示样例，不代表实时或完整英超数据。"
+SAMPLE_NOTICE = "当前返回 6 支球队的结构演示样例，不代表实时或完整英超数据。"
 
 
 def to_club_summary(club: Club) -> ClubSummary:
