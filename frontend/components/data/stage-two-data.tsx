@@ -197,7 +197,7 @@ export function StageTwoData() {
                   <span>02</span>
                   <h3>{standings.season} 积分榜</h3>
                 </div>
-                <small>5 队样例切片</small>
+                <small>{standings.total} 队样例切片</small>
               </div>
 
               <div className="table-scroll">

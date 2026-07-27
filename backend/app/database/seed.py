@@ -42,6 +42,17 @@ CLUBS = [
         "primary_color": "#6cabdd",
     },
     {
+        "name": "Chelsea",
+        "short_name": "Chelsea",
+        "slug": "chelsea",
+        "city": "London",
+        "stadium_name": "Stamford Bridge",
+        "stadium_latitude": 51.4817,
+        "stadium_longitude": -0.1910,
+        "founded_year": 1905,
+        "primary_color": "#034694",
+    },
+    {
         "name": "Newcastle United",
         "short_name": "Newcastle",
         "slug": "newcastle-united",
@@ -95,6 +106,16 @@ STANDINGS = {
         "goals_for": 72,
         "goals_against": 44,
         "points": 71,
+    },
+    "chelsea": {
+        "position": 4,
+        "played": 38,
+        "won": 20,
+        "drawn": 9,
+        "lost": 9,
+        "goals_for": 64,
+        "goals_against": 43,
+        "points": 69,
     },
     "newcastle-united": {
         "position": 5,
@@ -245,6 +266,48 @@ PLAYERS = {
             },
         },
     ],
+    "chelsea": [
+        {
+            "full_name": "Cole Palmer",
+            "slug": "cole-palmer",
+            "shirt_number": 20,
+            "position": "FWD",
+            "nationality": "England",
+            "date_of_birth": date(2002, 5, 6),
+            "stats": {
+                "appearances": 37,
+                "starts": 36,
+                "minutes": 3180,
+                "goals": 15,
+                "assists": 8,
+                "shots": 112,
+                "key_passes": 89,
+                "tackles": 27,
+                "interceptions": 11,
+                "expected_goals": 14.8,
+            },
+        },
+        {
+            "full_name": "Moises Caicedo",
+            "slug": "moises-caicedo",
+            "shirt_number": 25,
+            "position": "MID",
+            "nationality": "Ecuador",
+            "date_of_birth": date(2001, 11, 2),
+            "stats": {
+                "appearances": 38,
+                "starts": 38,
+                "minutes": 3420,
+                "goals": 1,
+                "assists": 2,
+                "shots": 23,
+                "key_passes": 31,
+                "tackles": 91,
+                "interceptions": 52,
+                "expected_goals": 1.3,
+            },
+        },
+    ],
     "newcastle-united": [
         {
             "full_name": "Alexander Isak",
@@ -333,55 +396,78 @@ PLAYERS = {
 
 
 def seed_sample_data(session: Session) -> bool:
-    """Insert the public sample slice once. Returns True when rows were added."""
+    """Insert missing public sample rows. Returns True when rows were added.
 
-    existing_sample = session.scalar(
-        select(Club.id).where(Club.slug == "liverpool")
-    )
-    if existing_sample is not None:
-        return False
+    The row-by-row checks intentionally keep this seed idempotent. They also let
+    an existing stage-2 database receive newly added stage-3 sample rows without
+    asking the user to delete their local SQLite file.
+    """
 
+    rows_added = False
     clubs_by_slug: dict[str, Club] = {}
     for club_data in CLUBS:
-        club = Club(**club_data, source_kind="sample")
-        session.add(club)
+        club = session.scalar(select(Club).where(Club.slug == club_data["slug"]))
+        if club is None:
+            club = Club(**club_data, source_kind="sample")
+            session.add(club)
+            session.flush()
+            rows_added = True
         clubs_by_slug[club.slug] = club
 
-    session.flush()
-
     for slug, standing_data in STANDINGS.items():
-        session.add(
-            Standing(
-                club_id=clubs_by_slug[slug].id,
-                season=SAMPLE_SEASON,
-                source_kind="sample",
-                **standing_data,
+        standing = session.scalar(
+            select(Standing).where(
+                Standing.club_id == clubs_by_slug[slug].id,
+                Standing.season == SAMPLE_SEASON,
             )
         )
+        if standing is None:
+            session.add(
+                Standing(
+                    club_id=clubs_by_slug[slug].id,
+                    season=SAMPLE_SEASON,
+                    source_kind="sample",
+                    **standing_data,
+                )
+            )
+            rows_added = True
 
     for slug, players in PLAYERS.items():
         for player_data in players:
-            stats_data = player_data["stats"]
-            player = Player(
-                club_id=clubs_by_slug[slug].id,
-                full_name=player_data["full_name"],
-                slug=player_data["slug"],
-                shirt_number=player_data["shirt_number"],
-                position=player_data["position"],
-                nationality=player_data["nationality"],
-                date_of_birth=player_data["date_of_birth"],
-                source_kind="sample",
+            player = session.scalar(
+                select(Player).where(Player.slug == player_data["slug"])
             )
-            session.add(player)
-            session.flush()
-            session.add(
-                PlayerSeasonStat(
-                    player_id=player.id,
-                    season=SAMPLE_SEASON,
+            if player is None:
+                player = Player(
+                    club_id=clubs_by_slug[slug].id,
+                    full_name=player_data["full_name"],
+                    slug=player_data["slug"],
+                    shirt_number=player_data["shirt_number"],
+                    position=player_data["position"],
+                    nationality=player_data["nationality"],
+                    date_of_birth=player_data["date_of_birth"],
                     source_kind="sample",
-                    **stats_data,
+                )
+                session.add(player)
+                session.flush()
+                rows_added = True
+
+            stats = session.scalar(
+                select(PlayerSeasonStat).where(
+                    PlayerSeasonStat.player_id == player.id,
+                    PlayerSeasonStat.season == SAMPLE_SEASON,
                 )
             )
+            if stats is None:
+                session.add(
+                    PlayerSeasonStat(
+                        player_id=player.id,
+                        season=SAMPLE_SEASON,
+                        source_kind="sample",
+                        **player_data["stats"],
+                    )
+                )
+                rows_added = True
 
     session.commit()
-    return True
+    return rows_added

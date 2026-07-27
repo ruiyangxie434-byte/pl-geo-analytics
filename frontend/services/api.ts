@@ -1,4 +1,7 @@
 import type {
+  AgentAnalysisData,
+  AgentAnalysisRequest,
+  AgentPlayerOptionData,
   ApiResponse,
   ClubListData,
   HealthData,
@@ -61,4 +64,36 @@ export function getStandings(
     `/standings?season=${encodeURIComponent(season)}`,
     signal,
   );
+}
+
+export function getAgentPlayers(
+  season = "2024-25",
+  signal?: AbortSignal,
+): Promise<ApiResponse<AgentPlayerOptionData>> {
+  return getApiData<AgentPlayerOptionData>(
+    `/agent/players?season=${encodeURIComponent(season)}`,
+    signal,
+  );
+}
+
+export async function runAgentAnalysis(
+  payload: AgentAnalysisRequest,
+  signal?: AbortSignal,
+): Promise<ApiResponse<AgentAnalysisData>> {
+  const response = await fetch(`${API_BASE_URL}/agent/analyze`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+    cache: "no-store",
+    signal,
+  });
+
+  const body = (await response.json()) as ApiResponse<AgentAnalysisData>;
+  if (!response.ok) {
+    throw new Error(body.message || `Agent 请求失败：HTTP ${response.status}`);
+  }
+  return body;
 }

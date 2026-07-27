@@ -1,23 +1,24 @@
 import Link from "next/link";
 
+import { AnalysisAgent } from "../components/agent/analysis-agent";
 import { StageTwoData } from "../components/data/stage-two-data";
 import { BackendStatus } from "../components/system/backend-status";
 
 const futureModules = [
   {
-    phase: "阶段 3",
+    phase: "阶段 3B",
     title: "英格兰地图",
     description: "从球场地理位置进入每一支英超球队的故事。",
   },
   {
-    phase: "阶段 4",
-    title: "球队详情",
-    description: "阵容、赛季概况、近期赛果与可排序完整积分榜。",
+    phase: "竞赛冲刺 2",
+    title: "千问模型接入",
+    description: "让大模型负责自然语言理解与报告表达，数据计算仍由工具完成。",
   },
   {
-    phase: "阶段 5–7",
-    title: "球员与比赛分析",
-    description: "每 90 分钟指标、球员雷达对比与示例比赛射门图。",
+    phase: "竞赛冲刺 3",
+    title: "记忆与报告",
+    description: "保存战术偏好、支持连续追问，并导出球探分析报告。",
   },
 ];
 
@@ -35,37 +36,34 @@ export default function Home() {
               <small>英超地理探索与球员数据分析平台</small>
             </span>
           </Link>
-          <span className="phase-badge">v0.2.0 · 阶段 2</span>
+          <span className="phase-badge">v0.3.0 · Agent MVP</span>
         </header>
 
         <section className="hero" aria-labelledby="hero-title">
           <div className="hero-copy">
             <p className="eyebrow">Premier League · Geography · Data</p>
             <h1 id="hero-title">
-              从英格兰地图出发，
-              <span>读懂球场上的数据。</span>
+              把足球问题交给
+              <span>会调用数据的 Agent。</span>
             </h1>
             <p className="hero-description">
-              现在项目已经拥有可迁移的 SQLite 数据层、球队与球员模型，以及从
-              FastAPI 实时读取的积分榜样例。下一步将把球场坐标放到英格兰地图上。
+              PitchMind 会理解分析目标，自动查询球员数据、换算每90分钟指标、
+              比较样例百分位，并把每一步依据展示给你。
             </p>
             <div className="hero-actions">
-              <a className="primary-button" href="#data-preview">
-                查看阶段 2 数据
+              <a className="primary-button" href="#analysis-agent">
+                体验分析 Agent
               </a>
-              <a
-                className="secondary-button"
-                href="http://127.0.0.1:8000/docs"
-                target="_blank"
-                rel="noreferrer"
-              >
-                打开 API 文档
+              <a className="secondary-button" href="#data-preview">
+                查看数据底座
               </a>
             </div>
           </div>
 
           <BackendStatus />
         </section>
+
+        <AnalysisAgent />
 
         <StageTwoData />
 
@@ -75,7 +73,7 @@ export default function Home() {
               <p className="eyebrow">BUILD ROADMAP</p>
               <h2 id="roadmap-title">接下来做什么</h2>
             </div>
-            <p>阶段 2 已完成，后续界面全部复用这一套数据库与 API。</p>
+            <p>优先完成参赛所需的 Agent 闭环，再继续推进地图与完整数据。</p>
           </div>
 
           <div className="module-grid">

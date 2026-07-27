@@ -11,7 +11,7 @@ from app.schemas.standing import StandingClub, StandingItem, StandingTableData
 router = APIRouter(prefix="/standings", tags=["standings"])
 
 SAMPLE_NOTICE = (
-    "这是 2024-25 赛季最终积分榜中的 5 队样例切片，"
+    "这是 2024-25 赛季最终积分榜中的 6 队样例切片，"
     "用于验证数据结构与接口，不是完整的 20 队积分榜。"
 )
 

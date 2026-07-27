@@ -7,9 +7,9 @@ def test_club_list_returns_seeded_sample_slice(api_client: TestClient) -> None:
     assert response.status_code == 200
     body = response.json()
     assert body["success"] is True
-    assert body["data"]["total"] == 5
-    assert body["data"]["player_total"] == 10
-    assert len(body["data"]["items"]) == 5
+    assert body["data"]["total"] == 6
+    assert body["data"]["player_total"] == 12
+    assert len(body["data"]["items"]) == 6
     assert all(
         club["source_kind"] == "sample"
         for club in body["data"]["items"]
@@ -20,6 +20,7 @@ def test_club_list_returns_seeded_sample_slice(api_client: TestClient) -> None:
     } == {
         "arsenal",
         "aston-villa",
+        "chelsea",
         "liverpool",
         "manchester-city",
         "newcastle-united",
@@ -58,9 +59,9 @@ def test_standings_are_sorted_and_marked_partial(api_client: TestClient) -> None
     assert response.status_code == 200
     data = response.json()["data"]
     assert data["season"] == "2024-25"
-    assert data["total"] == 5
+    assert data["total"] == 6
     assert data["is_partial"] is True
-    assert [item["position"] for item in data["items"]] == [1, 2, 3, 5, 6]
+    assert [item["position"] for item in data["items"]] == [1, 2, 3, 4, 5, 6]
     assert data["items"][0]["club"]["slug"] == "liverpool"
     assert data["items"][0]["points"] == 84
 

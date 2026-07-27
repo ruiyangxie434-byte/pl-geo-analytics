@@ -7,7 +7,7 @@
 
 ## 当前进度
 
-当前版本：`v0.2.0 / 阶段 2：测试数据和数据库`
+当前版本：`v0.3.0 / 竞赛冲刺：足球分析 Agent MVP`
 
 - [x] Next.js + TypeScript + Tailwind CSS 前端骨架
 - [x] FastAPI 后端骨架
@@ -19,15 +19,20 @@
 - [x] SQLite + SQLAlchemy 数据层
 - [x] Alembic 初始迁移
 - [x] 球队、球员、积分榜、比赛与事件关系模型
-- [x] 5 支球队、10 名球员与积分榜样例切片
+- [x] 6 支球队、12 名球员与积分榜样例切片
 - [x] 球队列表、球队详情与积分榜 API
 - [x] 首页阶段 2 数据展示、加载、错误和重试状态
-- [ ] 英格兰球队地图（阶段 3）
+- [x] 双球员分析 Agent 任务入口
+- [x] 意图路由、数据库查询、每90分钟计算与证据排序工具链
+- [x] 综合、终结、创造、高位逼抢四类动态权重
+- [x] Agent 执行轨迹、样例百分位、结论置信度与局限说明
+- [ ] 千问模型接入、偏好记忆与报告导出（竞赛冲刺后续）
+- [ ] 英格兰球队地图（阶段 3B）
 - [ ] 球队、积分榜、球员与比赛分析（后续阶段）
 
 当前页面展示的是明确标记为 `sample` 的 2024-25
-赛季小型结构演示切片，用于验证数据库、接口和前端数据流，不代表实时或完整的
-20 队英超数据。
+赛季小型结构演示切片，用于验证数据库、接口、Agent 工具调用和前端数据流，
+不代表实时或完整的 20 队英超数据，也不构成正式球探意见。
 
 ## 技术栈
 
@@ -36,6 +41,7 @@
 | 前端 | Next.js、React、TypeScript、Tailwind CSS |
 | 后端 | Python、FastAPI、Pydantic、SQLAlchemy、Alembic |
 | 数据库 | SQLite（开发），通过 `DATABASE_URL` 保留 PostgreSQL 切换能力 |
+| Agent MVP | 可解释规则规划器、数据查询工具、每90分钟计算、百分位与证据排序 |
 | 后续可视化 | React Leaflet、Apache ECharts、mplsoccer、Matplotlib |
 
 ## 系统关系
@@ -52,6 +58,8 @@ flowchart TD
 
 - 前端只负责页面、交互和图表，不保存数据库密码，也不直接请求需要密钥的第三方足球 API。
 - 后端统一完成数据校验、清洗、计算、缓存和数据库读写，再通过 `/api/*` 返回 JSON。
+- Agent 当前使用无需密钥的本地可解释规则引擎；后续接入千问时，模型只负责意图
+  理解和报告表达，关键数值继续由确定性工具计算。
 - 数据库只与后端连接；开发阶段可用 SQLite，后续通过环境变量切换 PostgreSQL。
 
 ## 项目结构
@@ -101,7 +109,19 @@ python -m app.database.init_db
 - 球队列表：<http://127.0.0.1:8000/api/clubs>
 - Liverpool 详情：<http://127.0.0.1:8000/api/clubs/liverpool>
 - 积分榜切片：<http://127.0.0.1:8000/api/standings?season=2024-25>
+- Agent 球员选项：<http://127.0.0.1:8000/api/agent/players?season=2024-25>
 - Swagger 文档：<http://127.0.0.1:8000/docs>
+
+`POST /api/agent/analyze` 的请求示例：
+
+```json
+{
+  "question": "萨卡和帕尔默，谁更适合高位逼抢体系？",
+  "player_slugs": ["bukayo-saka", "cole-palmer"],
+  "season": "2024-25",
+  "focus": "pressing"
+}
+```
 
 ### 2. 启动前端
 
@@ -160,10 +180,10 @@ npm run build
 - 每一阶段使用短期分支，例如 `chore/stage-01-init`、`feat/stage-02-data-api`。
 - 分支合并后可以删除；阶段成果使用 Git 标签保留，例如 `v0.1.0`。
 
-阶段 2 推荐提交：
+阶段 3 Agent MVP 推荐提交：
 
 ```text
-feat: add stage 2 football data API
+feat: add explainable football analysis agent MVP
 ```
 
 ## 许可证与数据来源
