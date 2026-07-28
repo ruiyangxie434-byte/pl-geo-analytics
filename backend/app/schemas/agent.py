@@ -4,6 +4,20 @@ from pydantic import BaseModel, Field, field_validator
 
 
 AgentFocus = Literal["balanced", "scoring", "creativity", "pressing"]
+AgentRequestedFocus = Literal[
+    "auto",
+    "balanced",
+    "scoring",
+    "creativity",
+    "pressing",
+]
+AgentGenerationMode = Literal["local_rules", "qwen_enhanced"]
+AgentGenerationStatus = Literal[
+    "completed",
+    "not_configured",
+    "fallback",
+    "pending",
+]
 
 
 class AgentAnalysisRequest(BaseModel):
@@ -14,7 +28,7 @@ class AgentAnalysisRequest(BaseModel):
         max_length=2,
     )
     season: str = Field(default="2024-25", pattern=r"^\d{4}-\d{2}$")
-    focus: AgentFocus = "balanced"
+    focus: AgentRequestedFocus = "auto"
 
     @field_validator("player_slugs")
     @classmethod
@@ -84,11 +98,28 @@ class AgentRecommendation(BaseModel):
     scores: dict[str, int]
 
 
+class AgentGeneration(BaseModel):
+    mode: AgentGenerationMode
+    status: AgentGenerationStatus
+    provider: Literal["local", "qwen"]
+    model: str | None
+    note: str
+
+
+class AgentCapabilitiesData(BaseModel):
+    qwen_configured: bool
+    provider: Literal["qwen"]
+    model: str
+    default_mode: AgentGenerationMode
+    message: str
+
+
 class AgentAnalysisData(BaseModel):
     run_id: str
     task_type: Literal["player_comparison"]
     question: str
     season: str
+    requested_focus: AgentRequestedFocus
     focus: AgentFocus
     focus_label: str
     players: list[AgentPlayerProfile]
@@ -96,5 +127,6 @@ class AgentAnalysisData(BaseModel):
     metrics: list[AgentMetricComparison]
     evidence: list[AgentEvidence]
     recommendation: AgentRecommendation
+    generation: AgentGeneration
     limitations: list[str]
     sample_notice: str

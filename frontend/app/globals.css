@@ -336,6 +336,10 @@ a {
   letter-spacing: 0.1em;
 }
 
+.console-header > .console-mode[data-qwen="true"] {
+  color: var(--accent);
+}
+
 .live-dot,
 .result-topbar i {
   width: 8px;
@@ -448,6 +452,10 @@ a {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 7px;
+}
+
+.focus-option:first-child {
+  grid-column: 1 / -1;
 }
 
 .focus-option {
@@ -668,11 +676,29 @@ a {
     rgba(72, 229, 164, 0.025);
 }
 
-.recommendation-card > span {
+.generation-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.generation-banner span {
   color: var(--accent);
   font-size: 9px;
   font-weight: 850;
   letter-spacing: 0.14em;
+}
+
+.generation-banner small {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+}
+
+.generation-banner[data-mode="local_rules"] span {
+  color: #f4d784;
 }
 
 .recommendation-card h3 {
@@ -686,6 +712,14 @@ a {
   color: var(--muted);
   font-size: 11px;
   line-height: 1.7;
+}
+
+.recommendation-card > .generation-note {
+  margin-top: 10px;
+  border-top: 1px solid rgba(72, 229, 164, 0.12);
+  padding-top: 10px;
+  color: #a9c9bd;
+  font-size: 9px;
 }
 
 .score-row {

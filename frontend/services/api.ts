@@ -1,6 +1,7 @@
 import type {
   AgentAnalysisData,
   AgentAnalysisRequest,
+  AgentCapabilitiesData,
   AgentPlayerOptionData,
   ApiResponse,
   ClubListData,
@@ -72,6 +73,15 @@ export function getAgentPlayers(
 ): Promise<ApiResponse<AgentPlayerOptionData>> {
   return getApiData<AgentPlayerOptionData>(
     `/agent/players?season=${encodeURIComponent(season)}`,
+    signal,
+  );
+}
+
+export function getAgentCapabilities(
+  signal?: AbortSignal,
+): Promise<ApiResponse<AgentCapabilitiesData>> {
+  return getApiData<AgentCapabilitiesData>(
+    "/agent/capabilities",
     signal,
   );
 }

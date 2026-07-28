@@ -33,7 +33,7 @@ def test_agent_compares_players_with_trace_and_evidence(
     assert data["task_type"] == "player_comparison"
     assert data["focus"] == "pressing"
     assert len(data["players"]) == 2
-    assert len(data["steps"]) == 4
+    assert len(data["steps"]) == 5
     assert all(step["status"] == "completed" for step in data["steps"])
     assert {metric["key"] for metric in data["metrics"]} >= {
         "tackles_per90",
@@ -44,6 +44,13 @@ def test_agent_compares_players_with_trace_and_evidence(
         "cole-palmer",
     }
     assert len(data["evidence"]) == 3
+    assert data["generation"] == {
+        "mode": "local_rules",
+        "status": "not_configured",
+        "provider": "local",
+        "model": None,
+        "note": "尚未配置千问，当前显示本地规则结论。",
+    }
 
 
 def test_agent_can_resolve_chinese_player_names(
@@ -76,3 +83,37 @@ def test_agent_rejects_duplicate_players(api_client: TestClient) -> None:
 
     assert response.status_code == 422
     assert response.json()["success"] is False
+
+
+def test_agent_capabilities_do_not_expose_secrets(
+    api_client: TestClient,
+) -> None:
+    response = api_client.get("/api/agent/capabilities")
+
+    assert response.status_code == 200
+    data = response.json()["data"]
+    assert data["qwen_configured"] is False
+    assert data["provider"] == "qwen"
+    assert data["model"] == "qwen-plus"
+    assert data["default_mode"] == "local_rules"
+    assert "api_key" not in data
+
+
+def test_agent_can_infer_focus_from_question(
+    api_client: TestClient,
+) -> None:
+    response = api_client.post(
+        "/api/agent/analyze",
+        json={
+            "question": "萨卡和帕尔默谁的创造与关键传球更适合组织进攻？",
+            "player_slugs": ["bukayo-saka", "cole-palmer"],
+            "season": "2024-25",
+            "focus": "auto",
+        },
+    )
+
+    assert response.status_code == 200
+    data = response.json()["data"]
+    assert data["requested_focus"] == "auto"
+    assert data["focus"] == "creativity"
+    assert data["focus_label"] == "创造与组织"

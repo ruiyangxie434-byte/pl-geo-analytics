@@ -3,18 +3,28 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties, FormEvent } from "react";
 
-import { getAgentPlayers, runAgentAnalysis } from "../../services/api";
+import {
+  getAgentCapabilities,
+  getAgentPlayers,
+  runAgentAnalysis,
+} from "../../services/api";
 import type {
   AgentAnalysisData,
-  AgentFocus,
+  AgentCapabilitiesData,
   AgentPlayerOption,
+  AgentRequestedFocus,
 } from "../../types/api";
 
 const FOCUS_OPTIONS: {
-  value: AgentFocus;
+  value: AgentRequestedFocus;
   label: string;
   description: string;
 }[] = [
+  {
+    value: "auto",
+    label: "自动识别",
+    description: "根据任务描述选择指标权重",
+  },
   {
     value: "balanced",
     label: "综合",
@@ -39,9 +49,12 @@ const FOCUS_OPTIONS: {
 
 export function AnalysisAgent() {
   const [players, setPlayers] = useState<AgentPlayerOption[]>([]);
+  const [capabilities, setCapabilities] =
+    useState<AgentCapabilitiesData | null>(null);
   const [firstSlug, setFirstSlug] = useState("bukayo-saka");
   const [secondSlug, setSecondSlug] = useState("cole-palmer");
-  const [focus, setFocus] = useState<AgentFocus>("pressing");
+  const [focus, setFocus] =
+    useState<AgentRequestedFocus>("auto");
   const [question, setQuestion] = useState(
     "萨卡和帕尔默，谁更适合高位逼抢体系？请给出数据依据。",
   );
@@ -53,13 +66,18 @@ export function AnalysisAgent() {
   useEffect(() => {
     const controller = new AbortController();
 
-    async function loadPlayers() {
+    async function loadAgentData() {
       try {
-        const response = await getAgentPlayers("2024-25", controller.signal);
-        if (!response.data) {
+        const [playersResponse, capabilityResponse] =
+          await Promise.all([
+            getAgentPlayers("2024-25", controller.signal),
+            getAgentCapabilities(controller.signal),
+          ]);
+        if (!playersResponse.data) {
           throw new Error("接口未返回球员数据");
         }
-        setPlayers(response.data.items);
+        setPlayers(playersResponse.data.items);
+        setCapabilities(capabilityResponse.data);
       } catch {
         if (!controller.signal.aborted) {
           setError("没有读取到可分析球员，请确认后端仍在运行。");
@@ -71,7 +89,7 @@ export function AnalysisAgent() {
       }
     }
 
-    void loadPlayers();
+    void loadAgentData();
     return () => controller.abort();
   }, []);
 
@@ -119,8 +137,8 @@ export function AnalysisAgent() {
           <h2 id="agent-title">足球分析与球探决策 Agent</h2>
         </div>
         <p>
-          不是普通聊天框。Agent 会拆解任务、调用数据库工具、统一指标口径，
-          再用可追溯证据生成建议。
+          Agent 会自动识别分析重点、调用数据库工具并统一指标口径；配置千问后，
+          再由模型基于可追溯证据组织回答。
         </p>
       </div>
 
@@ -131,7 +149,14 @@ export function AnalysisAgent() {
               <span className="live-dot" aria-hidden="true" />
               <strong>新建分析任务</strong>
             </div>
-            <span>LOCAL RULE AGENT · v0.3</span>
+            <span
+              className="console-mode"
+              data-qwen={capabilities?.qwen_configured ?? false}
+            >
+              {capabilities?.qwen_configured
+                ? `${capabilities.model} · ONLINE`
+                : "LOCAL SAFE MODE · v0.4"}
+            </span>
           </div>
 
           <div className="console-body">
@@ -230,7 +255,7 @@ export function AnalysisAgent() {
               {isRunning ? (
                 <>
                   <span className="loading-ring" aria-hidden="true" />
-                  Agent 正在调用分析工具
+                  Agent 正在计算并组织回答
                 </>
               ) : (
                 <>
@@ -240,8 +265,9 @@ export function AnalysisAgent() {
               )}
             </button>
             <p className="console-notice">
-              本阶段使用可解释的本地规则引擎，无需外部 API 密钥；所有结论均来自
-              样例数据库。
+              {capabilities?.qwen_configured
+                ? "千问只负责组织回答；得分、指标与证据仍由本地数据库工具计算。"
+                : "尚未配置千问 API Key，当前自动使用本地规则模式，所有分析功能仍可运行。"}
             </p>
           </div>
         </form>
@@ -261,7 +287,8 @@ export function AnalysisAgent() {
                 <li>理解分析意图</li>
                 <li>读取数据库记录</li>
                 <li>计算每90分钟指标</li>
-                <li>输出有依据的决策</li>
+                <li>生成可追溯证据</li>
+                <li>千问增强或本地安全回退</li>
               </ol>
             </div>
           )}
@@ -277,9 +304,24 @@ export function AnalysisAgent() {
               </div>
 
               <article className="recommendation-card">
-                <span>AGENT RECOMMENDATION</span>
+                <div
+                  className="generation-banner"
+                  data-mode={result.generation.mode}
+                >
+                  <span>
+                    {result.generation.mode === "qwen_enhanced"
+                      ? "QWEN ENHANCED"
+                      : "LOCAL RULE ENGINE"}
+                  </span>
+                  <small>
+                    {result.generation.model ?? "NO EXTERNAL MODEL"}
+                  </small>
+                </div>
                 <h3>{result.recommendation.headline}</h3>
                 <p>{result.recommendation.summary}</p>
+                <p className="generation-note">
+                  {result.generation.note}
+                </p>
                 <div className="score-row">
                   {result.players.map((player) => (
                     <div key={player.slug}>

@@ -7,7 +7,7 @@
 
 ## 当前进度
 
-当前版本：`v0.3.0 / 竞赛冲刺：足球分析 Agent MVP`
+当前版本：`v0.4.0 / 竞赛冲刺：Qwen-ready Hybrid Agent`
 
 - [x] Next.js + TypeScript + Tailwind CSS 前端骨架
 - [x] FastAPI 后端骨架
@@ -26,7 +26,10 @@
 - [x] 意图路由、数据库查询、每90分钟计算与证据排序工具链
 - [x] 综合、终结、创造、高位逼抢四类动态权重
 - [x] Agent 执行轨迹、样例百分位、结论置信度与局限说明
-- [ ] 千问模型接入、偏好记忆与报告导出（竞赛冲刺后续）
+- [x] 根据自然语言任务自动识别综合、终结、创造或逼抢重点
+- [x] 阿里云百炼千问兼容接口与 JSON 结构化回答
+- [x] 千问状态检测、密钥隔离、超时处理与本地安全回退
+- [ ] 千问真实函数调用、偏好记忆与报告导出（竞赛冲刺后续）
 - [ ] 英格兰球队地图（阶段 3B）
 - [ ] 球队、积分榜、球员与比赛分析（后续阶段）
 
@@ -41,7 +44,7 @@
 | 前端 | Next.js、React、TypeScript、Tailwind CSS |
 | 后端 | Python、FastAPI、Pydantic、SQLAlchemy、Alembic |
 | 数据库 | SQLite（开发），通过 `DATABASE_URL` 保留 PostgreSQL 切换能力 |
-| Agent MVP | 可解释规则规划器、数据查询工具、每90分钟计算、百分位与证据排序 |
+| Hybrid Agent | 确定性数据工具、自动意图识别、千问增强表达与本地安全回退 |
 | 后续可视化 | React Leaflet、Apache ECharts、mplsoccer、Matplotlib |
 
 ## 系统关系
@@ -52,14 +55,15 @@ flowchart TD
     B -->|REST / JSON| C["FastAPI 后端"]
     C -->|SQLAlchemy| D["SQLite（开发）/ PostgreSQL（正式）"]
     C --> E["清洗、每90分钟、百分位等分析服务"]
+    C -. 可选增强 .-> G["阿里云百炼千问"]
     F["公开数据源 / 本地样例"] --> E
     E --> D
 ```
 
 - 前端只负责页面、交互和图表，不保存数据库密码，也不直接请求需要密钥的第三方足球 API。
 - 后端统一完成数据校验、清洗、计算、缓存和数据库读写，再通过 `/api/*` 返回 JSON。
-- Agent 当前使用无需密钥的本地可解释规则引擎；后续接入千问时，模型只负责意图
-  理解和报告表达，关键数值继续由确定性工具计算。
+- Agent 始终由本地确定性工具计算关键数值。配置千问后，模型只基于这些证据组织
+  回答；未配置密钥或调用失败时自动回退到本地规则结果。
 - 数据库只与后端连接；开发阶段可用 SQLite，后续通过环境变量切换 PostgreSQL。
 
 ## 项目结构
@@ -82,7 +86,8 @@ pl-geo-analytics/
 
 ## 快速启动
 
-完整的 Windows 逐步操作见 [docs/WINDOWS_SETUP.md](docs/WINDOWS_SETUP.md)。
+完整的 Windows 逐步操作见 [docs/WINDOWS_SETUP.md](docs/WINDOWS_SETUP.md)；
+千问配置与安全说明见 [docs/QWEN_INTEGRATION.md](docs/QWEN_INTEGRATION.md)。
 
 ### 1. 启动后端
 
@@ -110,6 +115,7 @@ python -m app.database.init_db
 - Liverpool 详情：<http://127.0.0.1:8000/api/clubs/liverpool>
 - 积分榜切片：<http://127.0.0.1:8000/api/standings?season=2024-25>
 - Agent 球员选项：<http://127.0.0.1:8000/api/agent/players?season=2024-25>
+- Agent 模型状态：<http://127.0.0.1:8000/api/agent/capabilities>
 - Swagger 文档：<http://127.0.0.1:8000/docs>
 
 `POST /api/agent/analyze` 的请求示例：
@@ -119,7 +125,7 @@ python -m app.database.init_db
   "question": "萨卡和帕尔默，谁更适合高位逼抢体系？",
   "player_slugs": ["bukayo-saka", "cole-palmer"],
   "season": "2024-25",
-  "focus": "pressing"
+  "focus": "auto"
 }
 ```
 
@@ -180,10 +186,10 @@ npm run build
 - 每一阶段使用短期分支，例如 `chore/stage-01-init`、`feat/stage-02-data-api`。
 - 分支合并后可以删除；阶段成果使用 Git 标签保留，例如 `v0.1.0`。
 
-阶段 3 Agent MVP 推荐提交：
+阶段 4 千问接入推荐提交：
 
 ```text
-feat: add explainable football analysis agent MVP
+feat: add grounded Qwen response layer
 ```
 
 ## 许可证与数据来源
