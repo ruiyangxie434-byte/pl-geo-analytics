@@ -1,4 +1,4 @@
-# v0.3.0 Agent MVP：Windows 启动与验证
+# v0.4.0 Hybrid Agent：Windows 启动与验证
 
 本文以 PowerShell 为例。命令前的“运行目录”很重要；如果目录不对，命令即使没有拼错也会失败。
 
@@ -218,7 +218,7 @@ npm run dev
     "service": "PL Geo Analytics API",
     "status": "healthy",
     "environment": "development",
-    "version": "0.3.0"
+    "version": "0.4.0"
   }
 }
 ```
@@ -230,6 +230,7 @@ npm run dev
 - `GET /api/clubs/{slug}`
 - `GET /api/standings`
 - `GET /api/agent/players`
+- `GET /api/agent/capabilities`
 - `POST /api/agent/analyze`
 
 在 `backend/` 运行：
@@ -238,18 +239,20 @@ npm run dev
 pytest
 ```
 
-应显示 11 个测试通过。
+应显示 14 个测试通过。
 
 ### 前端
 
 打开 <http://localhost:3000>，应满足：
 
 - 页面显示 `PL Geo Analytics`。
-- 显示“v0.3.0 · Agent MVP”。
+- 显示“v0.4.0 · Qwen-ready Hybrid Agent”。
 - 后端运行时显示“后端连接正常”。
 - 显示 6 支球队的球场信息和积分榜样例切片。
 - 可以选择萨卡与帕尔默并运行高位逼抢分析。
-- 分析结果显示 4 步执行轨迹、指标百分位、证据和结论边界。
+- 分析结果显示 5 步执行轨迹、指标百分位、证据和结论边界。
+- 未配置千问时显示 `LOCAL SAFE MODE`，分析仍可正常运行。
+- 配置千问后显示模型名称和 `QWEN ENHANCED`。
 - 点击球队卡片时，球场坐标和积分榜高亮同步变化。
 - 停止后端并刷新页面时显示“暂未连接后端”，页面本身不崩溃。
 - 阶段 2 区域显示友好错误提示，并可点击“重新连接”。
@@ -276,7 +279,7 @@ git check-ignore backend\.env
 
 后两条命令应输出对应文件路径，表示真实环境变量不会被提交。
 
-## 7. v0.3.0 主要新增文件
+## 7. v0.4.0 主要新增文件
 
 ### 前端
 
@@ -297,12 +300,15 @@ git check-ignore backend\.env
 - `backend/app/api/routes/standings.py`
 - `backend/app/api/routes/agent.py`
 - `backend/app/services/analysis_agent.py`
+- `backend/app/services/qwen_service.py`
 - `backend/app/schemas/agent.py`
 - `backend/app/schemas/club.py`
 - `backend/app/schemas/standing.py`
 - `backend/migrations/`
 - `backend/tests/test_data_api.py`
 - `backend/tests/test_agent_api.py`
+- `backend/tests/test_qwen_service.py`
+- `docs/QWEN_INTEGRATION.md`
 
 数据库文件 `backend/pl_geo_analytics.db` 是本地生成文件，已被 `.gitignore`
 排除，不应上传 GitHub。样例数据由幂等初始化脚本写入，说明见
@@ -319,6 +325,7 @@ main                         始终可运行
 chore/stage-01-init          已完成的初始化工作
 feat/stage-02-data-api       数据库、测试数据和基础 API
 feat/stage-03-agent-mvp      足球分析 Agent MVP
+feat/stage-04-qwen-integration 千问增强回答与安全回退
 feat/stage-03-map-home       后续：地图首页
 feat/stage-04-club-standing  球队详情和积分榜
 feat/stage-05-player-stats   球员数据
@@ -327,33 +334,33 @@ feat/stage-07-match-analysis 示例比赛
 chore/stage-08-polish        测试、文档和适配
 ```
 
-如果阶段 2 已在 `main`，Agent MVP 的操作：
+如果 Agent MVP 已在 `main`，千问接入阶段的操作：
 
 ```powershell
-git switch -c feat/stage-03-agent-mvp
+git switch -c feat/stage-04-qwen-integration
 git add .
 git status
-git commit -m "feat: add explainable football analysis agent MVP"
+git commit -m "feat: add grounded Qwen response layer"
 git switch main
-git merge --no-ff feat/stage-03-agent-mvp
-git tag v0.3.0
+git merge --no-ff feat/stage-04-qwen-integration
+git tag v0.4.0
 ```
 
 如果当前修改已经直接发生在 `main`，也可以直接提交，不需要为了形式重新复制分支。
 
-## 9. Agent MVP 提交信息
+## 9. Qwen 接入提交信息
 
 推荐唯一主提交：
 
 ```text
-feat: add explainable football analysis agent MVP
+feat: add grounded Qwen response layer
 ```
 
 如果希望拆成两个更清楚的提交：
 
 ```text
-feat: add football agent planning and analysis tools
-feat: add interactive agent workspace and evidence view
+feat: add Qwen configuration and grounded response service
+feat: show hybrid Agent mode and safe fallback status
 ```
 
 提交前一定先运行前端构建、后端测试和 `git status`，确认没有 `.env`、数据库文件或 `node_modules`。

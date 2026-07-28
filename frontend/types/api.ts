@@ -74,6 +74,8 @@ export type AgentFocus =
   | "creativity"
   | "pressing";
 
+export type AgentRequestedFocus = AgentFocus | "auto";
+
 export interface AgentPlayerOption {
   slug: string;
   full_name: string;
@@ -131,11 +133,28 @@ export interface AgentRecommendation {
   scores: Record<string, number>;
 }
 
+export interface AgentGeneration {
+  mode: "local_rules" | "qwen_enhanced";
+  status: "completed" | "not_configured" | "fallback" | "pending";
+  provider: "local" | "qwen";
+  model: string | null;
+  note: string;
+}
+
+export interface AgentCapabilitiesData {
+  qwen_configured: boolean;
+  provider: "qwen";
+  model: string;
+  default_mode: "local_rules" | "qwen_enhanced";
+  message: string;
+}
+
 export interface AgentAnalysisData {
   run_id: string;
   task_type: "player_comparison";
   question: string;
   season: string;
+  requested_focus: AgentRequestedFocus;
   focus: AgentFocus;
   focus_label: string;
   players: AgentPlayerProfile[];
@@ -143,6 +162,7 @@ export interface AgentAnalysisData {
   metrics: AgentMetricComparison[];
   evidence: AgentEvidence[];
   recommendation: AgentRecommendation;
+  generation: AgentGeneration;
   limitations: string[];
   sample_notice: string;
 }
@@ -151,5 +171,5 @@ export interface AgentAnalysisRequest {
   question: string;
   player_slugs: [string, string];
   season: string;
-  focus: AgentFocus;
+  focus: AgentRequestedFocus;
 }

@@ -6,13 +6,19 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     app_name: str = "PL Geo Analytics API"
     app_env: str = "development"
-    app_version: str = "0.3.0"
+    app_version: str = "0.4.0"
     debug: bool = True
     api_prefix: str = "/api"
     frontend_origins: str = "http://localhost:3000"
     database_url: str = "sqlite:///./pl_geo_analytics.db"
     auto_create_database: bool = True
     seed_sample_data: bool = True
+    dashscope_api_key: str | None = None
+    qwen_base_url: str = (
+        "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    )
+    qwen_model: str = "qwen-plus"
+    qwen_timeout_seconds: float = 20.0
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -28,6 +34,14 @@ class Settings(BaseSettings):
             for origin in self.frontend_origins.split(",")
             if origin.strip()
         ]
+
+    @property
+    def qwen_configured(self) -> bool:
+        return bool(
+            self.dashscope_api_key
+            and self.dashscope_api_key.strip()
+            and self.qwen_base_url.strip()
+        )
 
 
 @lru_cache

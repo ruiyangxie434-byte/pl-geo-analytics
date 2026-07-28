@@ -11,12 +11,12 @@ const futureModules = [
     description: "从球场地理位置进入每一支英超球队的故事。",
   },
   {
-    phase: "竞赛冲刺 2",
-    title: "千问模型接入",
-    description: "让大模型负责自然语言理解与报告表达，数据计算仍由工具完成。",
+    phase: "竞赛冲刺 3",
+    title: "真实工具调用",
+    description: "让千问自主选择球员查询、指标计算和对比工具。",
   },
   {
-    phase: "竞赛冲刺 3",
+    phase: "竞赛冲刺 4",
     title: "记忆与报告",
     description: "保存战术偏好、支持连续追问，并导出球探分析报告。",
   },
@@ -36,7 +36,9 @@ export default function Home() {
               <small>英超地理探索与球员数据分析平台</small>
             </span>
           </Link>
-          <span className="phase-badge">v0.3.0 · Agent MVP</span>
+          <span className="phase-badge">
+            v0.4.0 · Qwen-ready Hybrid Agent
+          </span>
         </header>
 
         <section className="hero" aria-labelledby="hero-title">
@@ -48,7 +50,7 @@ export default function Home() {
             </h1>
             <p className="hero-description">
               PitchMind 会理解分析目标，自动查询球员数据、换算每90分钟指标、
-              比较样例百分位，并把每一步依据展示给你。
+              比较样例百分位，并让千问基于可追溯证据组织回答。
             </p>
             <div className="hero-actions">
               <a className="primary-button" href="#analysis-agent">

@@ -10,6 +10,7 @@ from app.schemas.agent import (
     AgentAnalysisRequest,
     AgentEvidence,
     AgentFocus,
+    AgentGeneration,
     AgentMetricComparison,
     AgentMetricValue,
     AgentPlayerOption,
@@ -88,6 +89,39 @@ PLAYER_ALIASES = {
     "凯塞多": "moises-caicedo",
 }
 
+FOCUS_KEYWORDS: dict[AgentFocus, tuple[str, ...]] = {
+    "scoring": (
+        "进球",
+        "得分",
+        "终结",
+        "射门",
+        "xg",
+        "破门",
+    ),
+    "creativity": (
+        "创造",
+        "组织",
+        "助攻",
+        "关键传球",
+        "传球",
+        "机会",
+    ),
+    "pressing": (
+        "逼抢",
+        "压迫",
+        "抢断",
+        "拦截",
+        "防守",
+        "反抢",
+    ),
+    "balanced": (
+        "综合",
+        "全面",
+        "整体",
+        "攻防",
+    ),
+}
+
 
 class AgentInputError(ValueError):
     pass
@@ -116,6 +150,21 @@ def _calculate_per90(stats: PlayerSeasonStat) -> dict[str, float]:
         "interceptions_per90": _per90(stats.interceptions, stats.minutes),
         "expected_goals_per90": _per90(stats.expected_goals, stats.minutes),
     }
+
+
+def _resolve_focus(request: AgentAnalysisRequest) -> AgentFocus:
+    if request.focus != "auto":
+        return request.focus
+
+    question = request.question.casefold()
+    keyword_scores = {
+        focus: sum(keyword in question for keyword in keywords)
+        for focus, keywords in FOCUS_KEYWORDS.items()
+    }
+    best_focus = max(keyword_scores, key=keyword_scores.get)
+    if keyword_scores[best_focus] == 0:
+        return "balanced"
+    return best_focus
 
 
 def _load_snapshots(db: Session, season: str) -> list[PlayerSnapshot]:
@@ -301,14 +350,19 @@ def analyze_players(
     slugs = _resolve_player_slugs(request, population)
     by_slug = {item.player.slug: item for item in population}
     selected = [by_slug[slug] for slug in slugs]
-    metrics, scores = _build_metrics(selected, population, request.focus)
+    resolved_focus = _resolve_focus(request)
+    metrics, scores = _build_metrics(
+        selected,
+        population,
+        resolved_focus,
+    )
     names = {item.player.slug: item.player.full_name for item in selected}
 
     winner_slug = max(scores, key=scores.get)
     loser_slug = next(slug for slug in slugs if slug != winner_slug)
     score_gap = abs(scores[winner_slug] - scores[loser_slug])
     confidence = round(min(0.82, 0.58 + score_gap / 250), 2)
-    focus_label = FOCUS_LABELS[request.focus]
+    focus_label = FOCUS_LABELS[resolved_focus]
 
     limitations = [
         "数据为小型赛季样例，未包含伤病、对手强度、比赛状态和战术角色。",
@@ -322,7 +376,8 @@ def analyze_players(
         task_type="player_comparison",
         question=request.question,
         season=request.season,
-        focus=request.focus,
+        requested_focus=request.focus,
+        focus=resolved_focus,
         focus_label=focus_label,
         players=[
             AgentPlayerProfile(
@@ -341,7 +396,12 @@ def analyze_players(
                 index=1,
                 title="理解任务",
                 tool="intent_router",
-                detail=f"识别为双球员比较，重点分析“{focus_label}”。",
+                detail=(
+                    "从任务描述自动识别"
+                    if request.focus == "auto"
+                    else "使用用户指定的分析重点"
+                )
+                + f"“{focus_label}”，并锁定双球员比较任务。",
                 status="completed",
             ),
             AgentStep(
@@ -380,6 +440,13 @@ def analyze_players(
             ),
             confidence=confidence,
             scores=scores,
+        ),
+        generation=AgentGeneration(
+            mode="local_rules",
+            status="pending",
+            provider="local",
+            model=None,
+            note="等待回答生成层处理。",
         ),
         limitations=limitations,
         sample_notice=SAMPLE_NOTICE,
