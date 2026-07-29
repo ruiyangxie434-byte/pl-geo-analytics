@@ -38,6 +38,21 @@ export interface ClubListData {
   sample_notice: string;
 }
 
+export interface ClubPlayerSummary {
+  id: number;
+  full_name: string;
+  slug: string;
+  shirt_number: number | null;
+  position: string;
+  nationality: string;
+  date_of_birth: string | null;
+  source_kind: "sample";
+}
+
+export interface ClubDetailData extends ClubSummary {
+  players: ClubPlayerSummary[];
+}
+
 export interface StandingClub {
   id: number;
   name: string;

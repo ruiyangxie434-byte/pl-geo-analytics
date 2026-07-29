@@ -4,6 +4,7 @@ import type {
   AgentCapabilitiesData,
   AgentPlayerOptionData,
   ApiResponse,
+  ClubDetailData,
   ClubListData,
   HealthData,
   StandingTableData,
@@ -55,6 +56,16 @@ export function getClubs(
   signal?: AbortSignal,
 ): Promise<ApiResponse<ClubListData>> {
   return getApiData<ClubListData>("/clubs", signal);
+}
+
+export function getClub(
+  slug: string,
+  signal?: AbortSignal,
+): Promise<ApiResponse<ClubDetailData>> {
+  return getApiData<ClubDetailData>(
+    `/clubs/${encodeURIComponent(slug)}`,
+    signal,
+  );
 }
 
 export function getStandings(

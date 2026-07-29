@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     app_name: str = "Premier League Insight Agent API"
     app_env: str = "development"
-    app_version: str = "0.4.0"
+    app_version: str = "0.5.0"
     debug: bool = True
     api_prefix: str = "/api"
     frontend_origins: str = "http://localhost:3000"

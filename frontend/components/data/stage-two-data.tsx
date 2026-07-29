@@ -72,7 +72,7 @@ export function StageTwoData() {
       <div className="section-heading data-heading">
         <div>
           <p className="eyebrow">DATABASE CONNECTED</p>
-          <h2 id="data-title">阶段 2 数据层</h2>
+          <h2 id="data-title">结构化数据底座</h2>
         </div>
         <p>
           球队、球员与积分榜已经由 FastAPI 从 SQLite
@@ -109,7 +109,7 @@ export function StageTwoData() {
 
       {state === "success" && clubs && standings && (
         <>
-          <div className="data-metrics" aria-label="阶段 2 数据概况">
+          <div className="data-metrics" aria-label="结构化数据概况">
             <div>
               <span>SCHEMA</span>
               <strong>6</strong>
@@ -137,7 +137,7 @@ export function StageTwoData() {
               <div className="panel-title">
                 <div>
                   <span>01</span>
-                  <h3>球场坐标样例</h3>
+                  <h3>球队数据索引</h3>
                 </div>
                 <small>选择球队查看地点</small>
               </div>
