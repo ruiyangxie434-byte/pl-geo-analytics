@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PL Geo Analytics",
+  title: "Premier League Insight Agent",
   description: "英超地理探索与球员数据分析平台",
 };
 

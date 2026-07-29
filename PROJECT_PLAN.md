@@ -1,4 +1,4 @@
-# PL Geo Analytics 开发计划
+# Premier League Insight Agent 开发计划
 
 ## 产品目标
 

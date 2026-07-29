@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    app_name: str = "PL Geo Analytics API"
+    app_name: str = "Premier League Insight Agent API"
     app_env: str = "development"
     app_version: str = "0.4.0"
     debug: bool = True

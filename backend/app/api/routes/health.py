@@ -15,7 +15,7 @@ router = APIRouter(prefix="/health", tags=["Health"])
 async def health_check() -> ApiResponse[HealthData]:
     settings = get_settings()
     return ApiResponse(
-        message="PL Geo Analytics API is running",
+        message="Premier League Insight Agent API is running",
         data=HealthData(
             service=settings.app_name,
             status="healthy",

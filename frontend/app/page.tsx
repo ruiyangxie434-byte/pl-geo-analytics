@@ -27,12 +27,12 @@ export default function Home() {
     <main>
       <div className="page-shell">
         <header className="site-header">
-          <Link className="brand" href="/" aria-label="PL Geo Analytics 首页">
+          <Link className="brand" href="/" aria-label="Premier League Insight Agent 首页">
             <span className="brand-mark" aria-hidden="true">
               PL
             </span>
             <span>
-              <strong>PL Geo Analytics</strong>
+              <strong>Premier League Insight Agent</strong>
               <small>英超地理探索与球员数据分析平台</small>
             </span>
           </Link>

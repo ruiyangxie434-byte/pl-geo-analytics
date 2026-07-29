@@ -11,9 +11,9 @@ def test_health_check_returns_unified_response() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "success": True,
-        "message": "PL Geo Analytics API is running",
+        "message": "Premier League Insight Agent API is running",
         "data": {
-            "service": "PL Geo Analytics API",
+            "service": "Premier League Insight Agent API",
             "status": "healthy",
             "environment": "development",
             "version": "0.4.0",

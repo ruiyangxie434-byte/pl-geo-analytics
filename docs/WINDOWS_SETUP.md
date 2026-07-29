@@ -213,9 +213,9 @@ npm run dev
 ```json
 {
   "success": true,
-  "message": "PL Geo Analytics API is running",
+  "message": "Premier League Insight Agent API is running",
   "data": {
-    "service": "PL Geo Analytics API",
+    "service": "Premier League Insight Agent API",
     "status": "healthy",
     "environment": "development",
     "version": "0.4.0"
@@ -245,7 +245,7 @@ pytest
 
 打开 <http://localhost:3000>，应满足：
 
-- 页面显示 `PL Geo Analytics`。
+- 页面显示 `Premier League Insight Agent`。
 - 显示“v0.4.0 · Qwen-ready Hybrid Agent”。
 - 后端运行时显示“后端连接正常”。
 - 显示 6 支球队的球场信息和积分榜样例切片。

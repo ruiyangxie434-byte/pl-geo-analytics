@@ -1,1 +1,1 @@
-"""PL Geo Analytics backend application."""
+"""Premier League Insight Agent backend application."""
