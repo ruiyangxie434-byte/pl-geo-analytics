@@ -1,198 +1,188 @@
-# PL Geo Analytics
+# 英超智析 Agent | Premier League Insight Agent
 
-> 英超地理探索与球员数据分析平台  
-> Premier League Geo Analytics
+> 面向中文英超球迷与内容创作者的垂直足球数据分析助手  
+> 将球队、球员与比赛数据转化为可查询、可比较、可解释的分析结论。
 
-面向中文英超球迷的交互式地理探索与数据分析平台。项目以“地图 → 球队 → 球员 → 对比 → 比赛事件”为主线，展示足球数据采集、清洗、存储、分析、可视化与 Web 开发能力。
+**当前版本：`v0.4.0 · Qwen-enhanced Hybrid Agent`**  
+**项目状态：MVP 开发中**
 
-## 当前进度
+## 项目简介
 
-当前版本：`v0.4.0 / 竞赛冲刺：Qwen-ready Hybrid Agent`
+Premier League Insight Agent 是一个结合足球数据工程、Web 开发与大模型应用的英超数据分析项目。
 
-- [x] Next.js + TypeScript + Tailwind CSS 前端骨架
-- [x] FastAPI 后端骨架
-- [x] `GET /api/health` 健康检查
-- [x] 统一成功与错误响应结构
-- [x] 前端后端连通状态展示
-- [x] 环境变量示例
-- [x] Windows 本地开发说明
-- [x] SQLite + SQLAlchemy 数据层
-- [x] Alembic 初始迁移
-- [x] 球队、球员、积分榜、比赛与事件关系模型
-- [x] 6 支球队、12 名球员与积分榜样例切片
-- [x] 球队列表、球队详情与积分榜 API
-- [x] 首页阶段 2 数据展示、加载、错误和重试状态
-- [x] 双球员分析 Agent 任务入口
-- [x] 意图路由、数据库查询、每90分钟计算与证据排序工具链
-- [x] 综合、终结、创造、高位逼抢四类动态权重
-- [x] Agent 执行轨迹、样例百分位、结论置信度与局限说明
-- [x] 根据自然语言任务自动识别综合、终结、创造或逼抢重点
-- [x] 阿里云百炼千问兼容接口与 JSON 结构化回答
-- [x] 千问状态检测、密钥隔离、超时处理与本地安全回退
-- [ ] 千问真实函数调用、偏好记忆与报告导出（竞赛冲刺后续）
-- [ ] 英格兰球队地图（阶段 3B）
-- [ ] 球队、积分榜、球员与比赛分析（后续阶段）
+系统通过数据库查询、每 90 分钟指标计算、证据排序和结论边界判断生成结构化分析，并使用通义千问进一步组织自然语言回答。千问不可用时，系统会自动切换至本地安全分析模式。
 
-当前页面展示的是明确标记为 `sample` 的 2024-25
-赛季小型结构演示切片，用于验证数据库、接口、Agent 工具调用和前端数据流，
-不代表实时或完整的 20 队英超数据，也不构成正式球探意见。
+项目由数据科学与大数据技术专业学生独立开发，主要用于比赛展示、GitHub 项目积累与足球数据分析实践。
+
+## 当前功能
+
+| 模块 | 已实现能力 |
+|---|---|
+| 数据库 | 球队、球员、积分榜、比赛与事件关系模型 |
+| 数据 API | 球队列表、球队详情、积分榜等查询接口 |
+| 球员分析 | 双球员比较、每 90 分钟指标与四种分析侧重点 |
+| Agent 工具链 | 意图识别、数据查询、指标计算、证据排序与结论生成 |
+| 千问增强 | 接入 `qwen-plus`，生成更自然的中文足球分析 |
+| 安全降级 | 千问不可用时自动进入 `LOCAL SAFE MODE` |
+| 前端交互 | 分析任务入口、加载状态、错误提示与重新尝试 |
+| 工程能力 | 数据库迁移、统一响应结构、自动化测试与环境变量管理 |
+
+当前数据库包含 **6 支球队、12 名球员及积分榜样例切片**，用于验证完整的数据分析流程。
+
+## Agent 工作流程
+
+```mermaid
+flowchart TD
+    A["选择两名球员与分析侧重点"] --> B["查询结构化数据"]
+    B --> C["计算每90分钟指标"]
+    C --> D["证据排序与结论边界判断"]
+    D --> E{"千问服务可用？"}
+    E -->|是| F["QWEN ENHANCED"]
+    E -->|否| G["LOCAL SAFE MODE"]
+```
+
+千问主要负责组织和解释已经计算出的证据，不直接替代数据库查询与指标计算。
 
 ## 技术栈
 
 | 层级 | 技术 |
-| --- | --- |
+|---|---|
 | 前端 | Next.js、React、TypeScript、Tailwind CSS |
-| 后端 | Python、FastAPI、Pydantic、SQLAlchemy、Alembic |
-| 数据库 | SQLite（开发），通过 `DATABASE_URL` 保留 PostgreSQL 切换能力 |
-| Hybrid Agent | 确定性数据工具、自动意图识别、千问增强表达与本地安全回退 |
-| 后续可视化 | React Leaflet、Apache ECharts、mplsoccer、Matplotlib |
+| 后端 | Python、FastAPI、Pydantic |
+| 数据层 | SQLite、SQLAlchemy、Alembic |
+| AI 能力 | 通义千问 OpenAI-compatible API、`qwen-plus` |
+| 测试与质量 | Pytest、ESLint、Next.js Build |
+| 版本管理 | Git、GitHub |
 
-## 系统关系
+## 本地运行
 
-```mermaid
-flowchart TD
-    A["浏览器 / 中文球迷"] --> B["Next.js 前端"]
-    B -->|REST / JSON| C["FastAPI 后端"]
-    C -->|SQLAlchemy| D["SQLite（开发）/ PostgreSQL（正式）"]
-    C --> E["清洗、每90分钟、百分位等分析服务"]
-    C -. 可选增强 .-> G["阿里云百炼千问"]
-    F["公开数据源 / 本地样例"] --> E
-    E --> D
+### 1. 克隆项目
+
+```powershell
+git clone https://github.com/ruiyangxie434-byte/premier-league-insight-agent.git
+cd premier-league-insight-agent
 ```
 
-- 前端只负责页面、交互和图表，不保存数据库密码，也不直接请求需要密钥的第三方足球 API。
-- 后端统一完成数据校验、清洗、计算、缓存和数据库读写，再通过 `/api/*` 返回 JSON。
-- Agent 始终由本地确定性工具计算关键数值。配置千问后，模型只基于这些证据组织
-  回答；未配置密钥或调用失败时自动回退到本地规则结果。
-- 数据库只与后端连接；开发阶段可用 SQLite，后续通过环境变量切换 PostgreSQL。
-
-## 项目结构
-
-核心业务采用前后端分离结构：
-
-```text
-pl-geo-analytics/
-├── frontend/              # Next.js 前端
-├── backend/               # FastAPI 后端
-├── data/                  # 原始、清洗、地理与示例数据
-├── notebooks/             # 数据探索过程
-├── scripts/               # 数据导入和维护脚本
-├── docs/                  # 项目文档
-├── .env.example           # 根级环境变量说明
-├── .gitignore
-├── PROJECT_PLAN.md
-└── README.md
-```
-
-## 快速启动
-
-完整的 Windows 逐步操作见 [docs/WINDOWS_SETUP.md](docs/WINDOWS_SETUP.md)；
-千问配置与安全说明见 [docs/QWEN_INTEGRATION.md](docs/QWEN_INTEGRATION.md)。
-
-### 1. 启动后端
+### 2. 启动后端
 
 ```powershell
 cd backend
-py -3.12 -m venv .venv
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 Copy-Item .env.example .env
-uvicorn app.main:app --reload --port 8000
+python -m uvicorn app.main:app
 ```
 
-首次启动时会自动建表并写入幂等样例数据。也可以手动执行：
+后端启动成功后访问：
 
-```powershell
-python -m app.database.init_db
-```
+- API 地址：`http://127.0.0.1:8000`
+- API 文档：`http://127.0.0.1:8000/docs`
 
-验证地址：
+### 3. 启动前端
 
-- 健康检查：<http://127.0.0.1:8000/api/health>
-- 球队列表：<http://127.0.0.1:8000/api/clubs>
-- Liverpool 详情：<http://127.0.0.1:8000/api/clubs/liverpool>
-- 积分榜切片：<http://127.0.0.1:8000/api/standings?season=2024-25>
-- Agent 球员选项：<http://127.0.0.1:8000/api/agent/players?season=2024-25>
-- Agent 模型状态：<http://127.0.0.1:8000/api/agent/capabilities>
-- Swagger 文档：<http://127.0.0.1:8000/docs>
-
-`POST /api/agent/analyze` 的请求示例：
-
-```json
-{
-  "question": "萨卡和帕尔默，谁更适合高位逼抢体系？",
-  "player_slugs": ["bukayo-saka", "cole-palmer"],
-  "season": "2024-25",
-  "focus": "auto"
-}
-```
-
-### 2. 启动前端
-
-另开一个 PowerShell：
+新建一个终端，在项目根目录运行：
 
 ```powershell
 cd frontend
-npm ci
-Copy-Item .env.example .env.local
+npm install
 npm run dev
 ```
 
-打开 <http://localhost:3000>。页面应显示“后端连接正常”。
+浏览器访问：
 
-## 数据库命令
-
-在 `backend/` 且虚拟环境已激活时运行：
-
-```powershell
-# 初始化本地数据库并检查样例数据
-python -m app.database.init_db
-
-# 按迁移升级数据库
-alembic upgrade head
-
-# 查看当前迁移版本
-alembic current
+```text
+http://localhost:3000
 ```
 
-日常启动后端不需要重复执行这些命令；初始化脚本是幂等的。
+## 千问配置
 
-## 测试与构建
+项目未配置千问 API Key 时仍可运行，并自动使用本地安全分析模式。
+
+如需启用千问增强：
+
+1. 复制 `backend/.env.example` 为 `backend/.env`。
+2. 按照示例文件填写自己的千问 API Key。
+3. 不要将 `.env` 或真实 API Key 上传到 GitHub。
+
+分析结果页面会显示当前模式：
+
+- `QWEN ENHANCED`：千问调用成功。
+- `LOCAL SAFE MODE`：正在使用本地分析结果。
+
+## 项目测试
+
+后端测试：
 
 ```powershell
-# 后端测试：在 backend/ 中运行
-pytest
+cd backend
+python -m pytest
+```
 
-# 前端检查：在 frontend/ 中运行
+前端检查：
+
+```powershell
+cd frontend
 npm run lint
 npm run build
 ```
 
-## 数据规范
+`v0.4.0` 阶段验收结果：
 
-- `data/raw/`：保留原始数据，不直接修改。
-- `data/processed/`：清洗后的可分析数据。
-- `data/geo/`：地理边界、球场坐标等。
-- `data/sample/`：可公开提交到 GitHub 的小型示例数据。
-- 人工维护、公开来源、衍生指标和示例数据必须明确区分。
-- 缺失值使用 `null` 或“暂无数据”，不能为了页面好看随意填 `0`。
-- 密钥只写入本地 `.env` / `.env.local`，不得提交到 Git。
+- 后端：14 项测试通过
+- 前端：Lint 通过
+- 前端：Production Build 通过
+- 千问真实调用验证通过
 
-## Git 建议
+## 版本进度
 
-- `main`：始终保持可运行。
-- 每一阶段使用短期分支，例如 `chore/stage-01-init`、`feat/stage-02-data-api`。
-- 分支合并后可以删除；阶段成果使用 Git 标签保留，例如 `v0.1.0`。
+- [x] `v0.1.0` 前后端项目骨架与健康检查
+- [x] `v0.2.0` SQLite 数据层、关系模型与基础 API
+- [x] `v0.3.0` 双球员分析 Agent MVP
+- [x] `v0.4.0` 通义千问增强与本地安全降级
+- [ ] `v0.5.0` 英格兰交互地图与球队球场探索
+- [ ] 扩展至完整 20 支英超球队
+- [ ] 球员雷达图与更多可视化
+- [ ] 接入真实、可追溯的比赛数据
+- [ ] 示例比赛事件与空间分析
+- [ ] 在线部署与移动端优化
 
-阶段 4 千问接入推荐提交：
+## 数据说明
+
+当前版本主要使用示例数据验证系统结构和分析流程，并非完整或实时英超数据。
+
+项目不会将示例数据描述为官方实时数据；后续将逐步接入具有明确来源和更新时间的公开足球数据。
+
+## 当前边界
+
+当前 MVP 暂不包含：
+
+- 用户注册与登录
+- 新闻资讯
+- 实时比分推送
+- 比赛结果预测
+- 完整历史赛季
+- 无依据的自由问答
+
+项目当前重点是完成一条可靠的流程：
 
 ```text
-feat: add grounded Qwen response layer
+结构化数据 → 指标计算 → 证据排序 → 结论边界 → 千问解释
 ```
 
-## 许可证与数据来源
+## 项目定位
 
-项目代码许可证和正式数据来源将在引入完整公开数据前确定。当前样例用于结构与界面验证，字段均带有
-`source_kind=sample`。不要提交未经授权的官方徽章、球员照片或受版权保护的数据文件。
+本项目不仅是一个英超信息展示网站，更是一项覆盖以下能力的综合实践：
+
+- 足球数据建模与数据库设计
+- 后端 API 开发
+- 数据清洗与衍生指标计算
+- Agent 工具链设计
+- 大模型安全接入
+- 前后端交互与工程测试
+
+---
+
+如果你对项目有建议，欢迎提交 Issue。
+
+**Premier League Insight Agent is under active development.**
