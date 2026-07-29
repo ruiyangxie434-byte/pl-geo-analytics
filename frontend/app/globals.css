@@ -40,6 +40,14 @@ a {
   -webkit-tap-highlight-color: transparent;
 }
 
+a:focus-visible,
+button:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
 .page-shell {
   width: min(1180px, calc(100% - 40px));
   min-height: 100vh;
@@ -271,6 +279,826 @@ a {
   overflow-wrap: anywhere;
   color: var(--foreground);
   text-align: right;
+}
+
+.map-section {
+  border-top: 1px solid var(--border);
+  padding: 76px 0 86px;
+}
+
+.map-heading {
+  align-items: end;
+}
+
+.map-state-card {
+  display: flex;
+  min-height: 150px;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 32px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 28px;
+  background: rgba(13, 26, 23, 0.72);
+}
+
+.map-state-card strong,
+.map-state-card p {
+  display: block;
+}
+
+.map-state-card p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.map-state-error {
+  justify-content: space-between;
+}
+
+.map-state-error > div > span,
+.club-page-error > div > span {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--danger);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.14em;
+}
+
+.map-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 32px;
+  border: 1px solid var(--border);
+  border-bottom: 0;
+  border-radius: 22px 22px 0 0;
+  background: rgba(13, 26, 23, 0.74);
+}
+
+.map-metrics > div {
+  padding: 18px 22px;
+}
+
+.map-metrics > div + div {
+  border-left: 1px solid var(--border);
+}
+
+.map-metrics span,
+.map-metrics small,
+.map-metrics strong {
+  display: block;
+}
+
+.map-metrics span {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+}
+
+.map-metrics strong {
+  margin-top: 5px;
+  color: var(--accent);
+  font-size: 24px;
+  letter-spacing: -0.04em;
+}
+
+.map-metrics small {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.map-explorer {
+  display: grid;
+  grid-template-columns: minmax(0, 1.48fr) minmax(300px, 0.52fr);
+  min-height: 620px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 0 0 24px 24px;
+  background: rgba(13, 26, 23, 0.78);
+  box-shadow: 0 32px 90px rgba(0, 0, 0, 0.22);
+}
+
+.map-canvas-shell {
+  display: grid;
+  min-width: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  border-right: 1px solid var(--border);
+  background: #091512;
+}
+
+.map-toolbar,
+.map-legend {
+  position: relative;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 48px;
+  padding: 0 16px;
+  background: rgba(7, 17, 15, 0.96);
+}
+
+.map-toolbar {
+  border-bottom: 1px solid var(--border);
+}
+
+.map-toolbar > div,
+.map-legend > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.map-toolbar strong {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+}
+
+.map-toolbar small,
+.map-legend {
+  color: var(--muted);
+  font-size: 8px;
+}
+
+.map-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 5px rgba(72, 229, 164, 0.08);
+}
+
+.map-canvas {
+  position: relative;
+  min-height: 520px;
+  isolation: isolate;
+}
+
+.map-canvas-loading {
+  display: flex;
+  height: 100%;
+  min-height: 520px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 14px;
+  background:
+    radial-gradient(circle at center, rgba(72, 229, 164, 0.1), transparent 42%),
+    #0a1714;
+}
+
+.map-canvas-loading p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.leaflet-club-map {
+  width: 100%;
+  height: 100%;
+  min-height: 520px;
+  background: #10201c;
+  font-family:
+    Inter, "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+}
+
+.leaflet-club-map .leaflet-tile-pane {
+  filter: grayscale(0.72) invert(0.9) sepia(0.15) hue-rotate(92deg)
+    saturate(0.62) brightness(0.72) contrast(1.16);
+}
+
+.leaflet-club-map .leaflet-control-zoom {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.26);
+}
+
+.leaflet-club-map .leaflet-control-zoom a {
+  border: 0;
+  background: rgba(7, 17, 15, 0.94);
+  color: var(--foreground);
+}
+
+.leaflet-club-map .leaflet-control-zoom a + a {
+  border-top: 1px solid var(--border);
+}
+
+.leaflet-club-map .leaflet-control-zoom a:hover {
+  background: #142a24;
+  color: var(--accent);
+}
+
+.leaflet-club-map .leaflet-control-attribution {
+  border-radius: 8px 0 0;
+  background: rgba(7, 17, 15, 0.84);
+  color: #93a8a0;
+  font-size: 7px;
+}
+
+.leaflet-club-map .leaflet-control-attribution a {
+  color: #bcebd7;
+}
+
+.club-map-marker-wrapper {
+  border: 0;
+  background: transparent;
+}
+
+.club-map-marker {
+  position: relative;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 3px solid #f4faf7;
+  border-radius: 50% 50% 50% 12px;
+  background: var(--marker-color);
+  box-shadow:
+    0 9px 24px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(0, 0, 0, 0.28);
+  color: #ffffff;
+  transform: rotate(-45deg);
+  transition:
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.club-map-marker b {
+  font-size: 9px;
+  letter-spacing: -0.04em;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+  transform: rotate(45deg);
+}
+
+.club-map-marker.is-selected {
+  z-index: 2;
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.45),
+    0 0 0 7px rgba(72, 229, 164, 0.32);
+  transform: rotate(-45deg) scale(1.16);
+}
+
+.leaflet-club-map .leaflet-tooltip {
+  border: 1px solid rgba(72, 229, 164, 0.28);
+  border-radius: 11px;
+  padding: 9px 11px;
+  background: rgba(7, 17, 15, 0.96);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.3);
+  color: var(--foreground);
+}
+
+.leaflet-club-map .leaflet-tooltip-top::before {
+  border-top-color: rgba(7, 17, 15, 0.96);
+}
+
+.club-map-tooltip strong,
+.club-map-tooltip small {
+  display: block;
+}
+
+.club-map-tooltip strong {
+  font-size: 11px;
+}
+
+.club-map-tooltip small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 8px;
+}
+
+.leaflet-club-map .leaflet-popup-content-wrapper,
+.leaflet-club-map .leaflet-popup-tip {
+  border: 1px solid rgba(72, 229, 164, 0.18);
+  background: #0b1916;
+  color: var(--foreground);
+}
+
+.leaflet-club-map .leaflet-popup-content-wrapper {
+  border-radius: 15px;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.38);
+}
+
+.leaflet-club-map .leaflet-popup-content {
+  margin: 15px 17px;
+}
+
+.club-map-popup span,
+.club-map-popup strong,
+.club-map-popup small,
+.club-map-popup a {
+  display: block;
+}
+
+.club-map-popup span {
+  color: var(--accent);
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.club-map-popup strong {
+  margin-top: 5px;
+  font-size: 13px;
+}
+
+.club-map-popup small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.club-map-popup a {
+  margin-top: 12px;
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.map-legend {
+  border-top: 1px solid var(--border);
+}
+
+.map-legend i {
+  width: 8px;
+  height: 8px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.map-sidebar {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  background:
+    linear-gradient(180deg, rgba(72, 229, 164, 0.04), transparent 34%),
+    rgba(10, 23, 20, 0.96);
+}
+
+.map-selected-card {
+  position: relative;
+  overflow: hidden;
+  padding: 24px 22px 21px;
+  border-bottom: 1px solid var(--border);
+}
+
+.map-selected-card::before {
+  position: absolute;
+  top: -86px;
+  right: -66px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--club-color) 20%, transparent);
+  content: "";
+  filter: blur(4px);
+}
+
+.selected-club-heading {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.selected-club-monogram {
+  display: grid;
+  width: 50px;
+  height: 50px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 16px;
+  background: var(--club-color);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 950;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.selected-club-heading small,
+.selected-club-heading h3 {
+  display: block;
+}
+
+.selected-club-heading small {
+  color: var(--accent);
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: 0.13em;
+}
+
+.selected-club-heading h3 {
+  margin: 5px 0 0;
+  font-size: 18px;
+  letter-spacing: -0.03em;
+}
+
+.selected-club-facts {
+  display: grid;
+  gap: 9px;
+  margin: 20px 0 0;
+}
+
+.selected-club-facts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  border-top: 1px solid var(--border);
+  padding-top: 9px;
+}
+
+.selected-club-facts dt,
+.selected-club-facts dd {
+  margin: 0;
+  font-size: 9px;
+}
+
+.selected-club-facts dt {
+  color: var(--muted);
+}
+
+.selected-club-facts dd {
+  overflow: hidden;
+  font-weight: 750;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.map-detail-link {
+  display: flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 18px;
+  border-radius: 11px;
+  padding: 0 13px;
+  background: var(--accent);
+  color: #06110d;
+  font-size: 10px;
+  font-weight: 900;
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.map-detail-link:hover {
+  background: #69edb7;
+  transform: translateY(-1px);
+}
+
+.map-club-list {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.map-list-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 45px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.map-list-heading strong {
+  font-size: 10px;
+}
+
+.map-list-heading span {
+  color: var(--accent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 9px;
+}
+
+.map-club-button {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 27px minmax(0, 1fr) 8px;
+  gap: 10px;
+  align-items: center;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  padding: 13px 17px;
+  background: transparent;
+  color: var(--foreground);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    padding-left 160ms ease;
+}
+
+.map-club-button:hover {
+  background: rgba(255, 255, 255, 0.025);
+  padding-left: 20px;
+}
+
+.map-club-button[data-selected="true"] {
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--club-color) 18%, transparent),
+      transparent 76%
+    );
+}
+
+.map-club-index {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 8px;
+}
+
+.map-club-button strong,
+.map-club-button small {
+  display: block;
+}
+
+.map-club-button strong {
+  overflow: hidden;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.map-club-button small {
+  overflow: hidden;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.map-club-button i {
+  width: 7px;
+  height: 7px;
+  border: 2px solid rgba(255, 255, 255, 0.72);
+  border-radius: 50%;
+  background: var(--club-color);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--club-color) 13%, transparent);
+}
+
+.map-sample-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.65;
+}
+
+.map-sample-notice span {
+  display: grid;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(72, 229, 164, 0.34);
+  border-radius: 50%;
+  color: var(--accent);
+  font-size: 8px;
+}
+
+.club-detail-shell {
+  min-height: 100vh;
+}
+
+.club-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 30px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 750;
+  transition:
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.club-back-link:hover {
+  color: var(--accent);
+  transform: translateX(-2px);
+}
+
+.club-page-state {
+  display: flex;
+  min-height: 360px;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 28px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 32px;
+  background: rgba(13, 26, 23, 0.72);
+}
+
+.club-page-state p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.club-page-error {
+  justify-content: space-between;
+}
+
+.club-detail-content {
+  margin-top: 28px;
+}
+
+.club-profile-hero {
+  position: relative;
+  display: grid;
+  overflow: hidden;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: center;
+  min-height: 330px;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  padding: 54px;
+  background:
+    radial-gradient(
+      circle at 80% 18%,
+      color-mix(in srgb, var(--club-color) 31%, transparent),
+      transparent 24rem
+    ),
+    linear-gradient(135deg, rgba(18, 35, 31, 0.96), rgba(7, 17, 15, 0.98));
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.22);
+}
+
+.club-profile-hero::after {
+  position: absolute;
+  right: -20px;
+  bottom: -130px;
+  width: 360px;
+  height: 360px;
+  border: 1px solid color-mix(in srgb, var(--club-color) 24%, transparent);
+  border-radius: 50%;
+  content: "";
+  box-shadow:
+    0 0 0 38px color-mix(in srgb, var(--club-color) 4%, transparent),
+    0 0 0 88px color-mix(in srgb, var(--club-color) 2%, transparent);
+}
+
+.club-profile-monogram {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 112px;
+  height: 112px;
+  place-items: center;
+  border: 4px solid rgba(255, 255, 255, 0.9);
+  border-radius: 30px;
+  background: var(--club-color);
+  color: #ffffff;
+  font-size: 25px;
+  font-weight: 950;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  transform: rotate(-4deg);
+}
+
+.club-profile-copy {
+  position: relative;
+  z-index: 1;
+}
+
+.club-profile-copy .eyebrow {
+  margin-bottom: 13px;
+}
+
+.club-profile-copy h1 {
+  margin: 0;
+  font-size: clamp(42px, 6vw, 72px);
+  line-height: 1;
+  letter-spacing: -0.055em;
+}
+
+.club-profile-copy > p:last-child {
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.club-profile-facts {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  min-width: 190px;
+  gap: 13px;
+  margin: 0;
+}
+
+.club-profile-facts > div {
+  border-left: 2px solid var(--club-color);
+  padding-left: 13px;
+}
+
+.club-profile-facts dt,
+.club-profile-facts dd {
+  margin: 0;
+}
+
+.club-profile-facts dt {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+}
+
+.club-profile-facts dd {
+  margin-top: 5px;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.club-squad-section {
+  padding: 72px 0 12px;
+}
+
+.club-player-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 30px;
+}
+
+.club-player-card {
+  position: relative;
+  display: grid;
+  overflow: hidden;
+  grid-template-columns: 62px minmax(0, 1fr) 8px;
+  gap: 17px;
+  align-items: center;
+  min-height: 132px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 22px;
+  background:
+    linear-gradient(
+      110deg,
+      color-mix(in srgb, var(--club-color) 9%, transparent),
+      transparent 64%
+    ),
+    rgba(18, 35, 31, 0.64);
+}
+
+.player-shirt-number {
+  color: color-mix(in srgb, var(--club-color) 82%, white);
+  font-size: 42px;
+  font-weight: 950;
+  line-height: 1;
+  letter-spacing: -0.08em;
+}
+
+.club-player-card small {
+  color: var(--accent);
+  font-size: 8px;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+}
+
+.club-player-card h3 {
+  margin: 5px 0 0;
+  font-size: 17px;
+}
+
+.club-player-card p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.club-player-card i {
+  width: 8px;
+  height: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.74);
+  border-radius: 50%;
+  background: var(--club-color);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--club-color) 13%, transparent);
+}
+
+.club-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 11px;
+  margin-top: 24px;
 }
 
 .agent-section {
@@ -1422,6 +2250,40 @@ a {
     max-width: 560px;
   }
 
+  .map-explorer {
+    grid-template-columns: 1fr;
+  }
+
+  .map-canvas-shell {
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .map-sidebar {
+    display: grid;
+    grid-template-columns: minmax(260px, 0.8fr) minmax(340px, 1.2fr);
+  }
+
+  .map-selected-card {
+    border-right: 1px solid var(--border);
+    border-bottom: 0;
+  }
+
+  .map-club-list {
+    max-height: 390px;
+  }
+
+  .club-profile-hero {
+    grid-template-columns: auto minmax(0, 1fr);
+    padding: 42px;
+  }
+
+  .club-profile-facts {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 12px;
+  }
+
   .module-grid {
     grid-template-columns: 1fr;
   }
@@ -1484,6 +2346,97 @@ a {
   }
 
   .hero-actions {
+    flex-direction: column;
+  }
+
+  .map-section {
+    padding: 54px 0 64px;
+  }
+
+  .map-state-error,
+  .club-page-error {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .map-state-error .secondary-button,
+  .club-page-error .secondary-button {
+    width: auto;
+  }
+
+  .map-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .map-metrics > div {
+    padding: 15px;
+  }
+
+  .map-metrics > div:nth-child(3) {
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--border);
+    border-left: 0;
+  }
+
+  .map-canvas,
+  .map-canvas-loading,
+  .leaflet-club-map {
+    min-height: 440px;
+  }
+
+  .map-toolbar small {
+    display: none;
+  }
+
+  .map-legend > small {
+    max-width: 150px;
+    text-align: right;
+  }
+
+  .map-sidebar {
+    display: block;
+  }
+
+  .map-selected-card {
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .map-club-list {
+    max-height: 330px;
+  }
+
+  .club-profile-hero {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    padding: 30px 24px 34px;
+  }
+
+  .club-profile-monogram {
+    width: 86px;
+    height: 86px;
+    border-radius: 24px;
+    font-size: 20px;
+  }
+
+  .club-profile-copy h1 {
+    font-size: clamp(38px, 13vw, 54px);
+  }
+
+  .club-profile-facts {
+    grid-column: auto;
+    grid-template-columns: 1fr;
+  }
+
+  .club-squad-section {
+    padding-top: 54px;
+  }
+
+  .club-player-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .club-detail-actions {
     flex-direction: column;
   }
 
@@ -1571,6 +2524,8 @@ a {
 
   .primary-button,
   .secondary-button,
+  .map-detail-link,
+  .map-club-button,
   .club-card,
   .standings-panel tbody tr {
     transition: none;

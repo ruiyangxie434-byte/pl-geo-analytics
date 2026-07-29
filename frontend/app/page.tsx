@@ -2,18 +2,19 @@ import Link from "next/link";
 
 import { AnalysisAgent } from "../components/agent/analysis-agent";
 import { StageTwoData } from "../components/data/stage-two-data";
+import { EnglandClubMap } from "../components/map/england-club-map";
 import { BackendStatus } from "../components/system/backend-status";
 
 const futureModules = [
   {
-    phase: "阶段 3B",
-    title: "英格兰地图",
-    description: "从球场地理位置进入每一支英超球队的故事。",
+    phase: "阶段 6",
+    title: "球员雷达图",
+    description: "按位置计算同位置百分位，更直观地比较球员能力结构。",
   },
   {
-    phase: "竞赛冲刺 3",
-    title: "真实工具调用",
-    description: "让千问自主选择球员查询、指标计算和对比工具。",
+    phase: "阶段 7",
+    title: "比赛空间分析",
+    description: "用来源明确的事件数据展示射门位置、时间线与比赛走势。",
   },
   {
     phase: "竞赛冲刺 4",
@@ -27,43 +28,47 @@ export default function Home() {
     <main>
       <div className="page-shell">
         <header className="site-header">
-          <Link className="brand" href="/" aria-label="Premier League Insight Agent 首页">
+          <Link className="brand" href="/" aria-label="英超智析 Agent 首页">
             <span className="brand-mark" aria-hidden="true">
-              PL
+              AI
             </span>
             <span>
-              <strong>Premier League Insight Agent</strong>
-              <small>英超地理探索与球员数据分析平台</small>
+              <strong>英超智析 Agent</strong>
+              <small>Premier League Insight Agent</small>
             </span>
           </Link>
           <span className="phase-badge">
-            v0.4.0 · Qwen-ready Hybrid Agent
+            v0.5.0 · Stadium Explorer
           </span>
         </header>
 
         <section className="hero" aria-labelledby="hero-title">
           <div className="hero-copy">
-            <p className="eyebrow">Premier League · Geography · Data</p>
+            <p className="eyebrow">
+              Premier League · Geography · Data · Agent
+            </p>
             <h1 id="hero-title">
-              把足球问题交给
-              <span>会调用数据的 Agent。</span>
+              先从主场出发，
+              <span>再让数据回答。</span>
             </h1>
             <p className="hero-description">
-              PitchMind 会理解分析目标，自动查询球员数据、换算每90分钟指标、
-              比较样例百分位，并让千问基于可追溯证据组织回答。
+              在英格兰地图上探索球队与球场，再让英超智析 Agent
+              自动查询球员数据、换算每90分钟指标，并基于可追溯证据组织回答。
             </p>
             <div className="hero-actions">
-              <a className="primary-button" href="#analysis-agent">
-                体验分析 Agent
+              <a className="primary-button" href="#club-map">
+                探索英格兰球场
               </a>
-              <a className="secondary-button" href="#data-preview">
-                查看数据底座
+              <a className="secondary-button" href="#analysis-agent">
+                体验分析 Agent
               </a>
             </div>
           </div>
 
           <BackendStatus />
         </section>
+
+        <EnglandClubMap />
 
         <AnalysisAgent />
 
@@ -75,7 +80,7 @@ export default function Home() {
               <p className="eyebrow">BUILD ROADMAP</p>
               <h2 id="roadmap-title">接下来做什么</h2>
             </div>
-            <p>优先完成参赛所需的 Agent 闭环，再继续推进地图与完整数据。</p>
+            <p>地图探索路径已经打通，下一步继续补齐可视化与真实比赛数据。</p>
           </div>
 
           <div className="module-grid">

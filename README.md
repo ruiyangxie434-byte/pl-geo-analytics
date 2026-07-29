@@ -3,7 +3,8 @@
 > 面向中文英超球迷与内容创作者的垂直足球数据分析助手  
 > 将球队、球员与比赛数据转化为可查询、可比较、可解释的分析结论。
 
-**当前版本：`v0.4.0 · Qwen-enhanced Hybrid Agent`**  
+**当前版本：`v0.5.0 · Stadium Explorer`**
+
 **项目状态：MVP 开发中**
 
 ## 项目简介
@@ -20,6 +21,8 @@ Premier League Insight Agent 是一个结合足球数据工程、Web 开发与�
 |---|---|
 | 数据库 | 球队、球员、积分榜、比赛与事件关系模型 |
 | 数据 API | 球队列表、球队详情、积分榜等查询接口 |
+| 球场地图 | 英格兰交互地图、球场标记、球队列表联动与定位动画 |
+| 球队详情 | 从地图进入球队资料页，展示球场信息与样例阵容 |
 | 球员分析 | 双球员比较、每 90 分钟指标与四种分析侧重点 |
 | Agent 工具链 | 意图识别、数据查询、指标计算、证据排序与结论生成 |
 | 千问增强 | 接入 `qwen-plus`，生成更自然的中文足球分析 |
@@ -47,7 +50,8 @@ flowchart TD
 
 | 层级 | 技术 |
 |---|---|
-| 前端 | Next.js、React、TypeScript、Tailwind CSS |
+| 前端 | Next.js、React、TypeScript、Tailwind CSS、React Leaflet |
+| 地图 | Leaflet、OpenStreetMap 标准瓦片 |
 | 后端 | Python、FastAPI、Pydantic |
 | 数据层 | SQLite、SQLAlchemy、Alembic |
 | AI 能力 | 通义千问 OpenAI-compatible API、`qwen-plus` |
@@ -95,6 +99,16 @@ npm run dev
 http://localhost:3000
 ```
 
+## 地图配置
+
+地图默认使用 OpenStreetMap 标准瓦片，并在地图内显示数据署名。需要切换合规的地图瓦片服务时，可在 `frontend/.env` 中设置：
+
+```dotenv
+NEXT_PUBLIC_MAP_TILE_URL=https://tile.openstreetmap.org/{z}/{x}/{y}.png
+```
+
+球队与球场坐标始终来自后端 `/api/clubs`，前端地图没有重复硬编码业务坐标。
+
 ## 千问配置
 
 项目未配置千问 API Key 时仍可运行，并自动使用本地安全分析模式。
@@ -127,12 +141,13 @@ npm run lint
 npm run build
 ```
 
-`v0.4.0` 阶段验收结果：
+`v0.5.0` 阶段验收结果：
 
-- 后端：14 项测试通过
+- 后端：15 项测试通过
 - 前端：Lint 通过
 - 前端：Production Build 通过
-- 千问真实调用验证通过
+- 首页与球队详情动态路由构建通过
+- 默认启动、球队列表与球队详情接口验证通过
 
 ## 版本进度
 
@@ -140,7 +155,7 @@ npm run build
 - [x] `v0.2.0` SQLite 数据层、关系模型与基础 API
 - [x] `v0.3.0` 双球员分析 Agent MVP
 - [x] `v0.4.0` 通义千问增强与本地安全降级
-- [ ] `v0.5.0` 英格兰交互地图与球队球场探索
+- [x] `v0.5.0` 英格兰交互地图与球队球场探索
 - [ ] 扩展至完整 20 支英超球队
 - [ ] 球员雷达图与更多可视化
 - [ ] 接入真实、可追溯的比赛数据

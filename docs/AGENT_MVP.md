@@ -1,4 +1,4 @@
-# PitchMind Hybrid Agent
+# Premier League Insight Agent · Hybrid Agent MVP
 
 ## 本阶段目标
 

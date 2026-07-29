@@ -41,6 +41,22 @@ def test_club_detail_includes_sample_players(api_client: TestClient) -> None:
     }
 
 
+def test_club_list_exposes_valid_stadium_coordinates_for_map(
+    api_client: TestClient,
+) -> None:
+    response = api_client.get("/api/clubs")
+
+    assert response.status_code == 200
+    clubs = response.json()["data"]["items"]
+    assert len(clubs) >= 5
+    assert all(club["stadium"]["name"] for club in clubs)
+    assert all(
+        49 <= club["stadium"]["latitude"] <= 56
+        and -6 <= club["stadium"]["longitude"] <= 2
+        for club in clubs
+    )
+
+
 def test_unknown_club_uses_unified_error(api_client: TestClient) -> None:
     response = api_client.get("/api/clubs/not-a-club")
 
