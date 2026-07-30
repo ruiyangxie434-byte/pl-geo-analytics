@@ -26,7 +26,7 @@ export interface ClubSummary {
   stadium: StadiumData;
   founded_year: number | null;
   primary_color: string;
-  source_kind: "sample";
+  source_kind: "reference" | "sample";
 }
 
 export interface ClubListData {
@@ -35,6 +35,10 @@ export interface ClubListData {
   player_total: number;
   limit: number;
   offset: number;
+  season: string;
+  is_complete: boolean;
+  source_name: string;
+  source_url: string;
   sample_notice: string;
 }
 
@@ -72,7 +76,7 @@ export interface StandingItem {
   goals_against: number;
   goal_difference: number;
   points: number;
-  source_kind: "sample";
+  source_kind: "historical" | "sample";
 }
 
 export interface StandingTableData {
@@ -80,6 +84,9 @@ export interface StandingTableData {
   items: StandingItem[];
   total: number;
   is_partial: boolean;
+  snapshot_date: string;
+  source_name: string;
+  source_url: string;
   sample_notice: string;
 }
 

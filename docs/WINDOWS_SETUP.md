@@ -248,7 +248,7 @@ pytest
 - 页面显示 `Premier League Insight Agent`。
 - 显示“v0.4.0 · Qwen-ready Hybrid Agent”。
 - 后端运行时显示“后端连接正常”。
-- 显示 6 支球队的球场信息和积分榜样例切片。
+- 显示 2024-25 完整 20 支球队、球场信息和最终积分榜历史快照。
 - 可以选择萨卡与帕尔默并运行高位逼抢分析。
 - 分析结果显示 5 步执行轨迹、指标百分位、证据和结论边界。
 - 未配置千问时显示 `LOCAL SAFE MODE`，分析仍可正常运行。
@@ -326,12 +326,12 @@ chore/stage-01-init          已完成的初始化工作
 feat/stage-02-data-api       数据库、测试数据和基础 API
 feat/stage-03-agent-mvp      足球分析 Agent MVP
 feat/stage-04-qwen-integration 千问增强回答与安全回退
-feat/stage-03-map-home       后续：地图首页
-feat/stage-04-club-standing  球队详情和积分榜
-feat/stage-05-player-stats   球员数据
-feat/stage-06-radar          雷达图
-feat/stage-07-match-analysis 示例比赛
-chore/stage-08-polish        测试、文档和适配
+feat/stage-05-england-map    英格兰交互地图
+feat/stage-06-full-league    完整 20 队和最终积分榜
+feat/stage-07-player-stats   球员数据
+feat/stage-08-radar          雷达图
+feat/stage-09-match-analysis 示例比赛
+chore/stage-10-polish        测试、文档和适配
 ```
 
 如果 Agent MVP 已在 `main`，千问接入阶段的操作：

@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, Query
+from datetime import date
+
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
@@ -10,9 +12,15 @@ from app.schemas.standing import StandingClub, StandingItem, StandingTableData
 
 router = APIRouter(prefix="/standings", tags=["standings"])
 
+STANDINGS_SOURCE_NAME = "Premier League official table"
+STANDINGS_SOURCE_URL = (
+    "https://www.premierleague.com/en/tables/premier-league/"
+    "2024-25/all-matchweeks"
+)
+STANDINGS_SNAPSHOT_DATE = date(2025, 5, 25)
 SAMPLE_NOTICE = (
-    "这是 2024-25 赛季最终积分榜中的 6 队样例切片，"
-    "用于验证数据结构与接口，不是完整的 20 队积分榜。"
+    "这是 2024-25 赛季 38 轮结束后的完整历史快照，"
+    "用于分析与展示，不是当前赛季实时积分榜。"
 )
 
 
@@ -24,6 +32,12 @@ def get_standings(
     ),
     db: Session = Depends(get_db),
 ) -> ApiResponse[StandingTableData]:
+    if season != SAMPLE_SEASON:
+        raise HTTPException(
+            status_code=404,
+            detail="当前仅提供 2024-25 赛季最终积分榜",
+        )
+
     standings = db.scalars(
         select(Standing)
         .options(joinedload(Standing.club))
@@ -61,6 +75,9 @@ def get_standings(
             items=items,
             total=len(items),
             is_partial=len(items) < 20,
+            snapshot_date=STANDINGS_SNAPSHOT_DATE,
+            source_name=STANDINGS_SOURCE_NAME,
+            source_url=STANDINGS_SOURCE_URL,
             sample_notice=SAMPLE_NOTICE,
         ),
     )
