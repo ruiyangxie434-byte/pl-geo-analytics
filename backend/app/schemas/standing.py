@@ -1,3 +1,5 @@
+from datetime import date
+
 from pydantic import BaseModel
 
 
@@ -28,4 +30,7 @@ class StandingTableData(BaseModel):
     items: list[StandingItem]
     total: int
     is_partial: bool
+    snapshot_date: date
+    source_name: str
+    source_url: str
     sample_notice: str

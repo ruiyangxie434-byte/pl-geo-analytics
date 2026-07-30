@@ -42,6 +42,7 @@ a {
 
 a:focus-visible,
 button:focus-visible,
+input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
   outline: 2px solid var(--accent);
@@ -374,6 +375,7 @@ textarea:focus-visible {
 
 .map-explorer {
   display: grid;
+  height: 680px;
   grid-template-columns: minmax(0, 1.48fr) minmax(300px, 0.52fr);
   min-height: 620px;
   overflow: hidden;
@@ -782,6 +784,48 @@ textarea:focus-visible {
   font-size: 9px;
 }
 
+.map-club-search,
+.club-search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border-bottom: 1px solid var(--border);
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.map-club-search span,
+.club-search span {
+  color: var(--accent);
+  font-size: 16px;
+}
+
+.map-club-search input,
+.club-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--foreground);
+  font: inherit;
+  font-size: 10px;
+}
+
+.map-club-search input::placeholder,
+.club-search input::placeholder {
+  color: #789087;
+}
+
+.map-club-search-empty,
+.club-search-empty {
+  padding: 26px 18px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.7;
+  text-align: center;
+}
+
 .map-club-button {
   display: grid;
   width: 100%;
@@ -871,6 +915,22 @@ textarea:focus-visible {
   border-radius: 50%;
   color: var(--accent);
   font-size: 8px;
+}
+
+.map-sample-notice > span:last-child {
+  display: inline;
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  color: inherit;
+  font-size: inherit;
+}
+
+.map-sample-notice a,
+.sample-notice a {
+  color: var(--accent);
+  font-weight: 750;
 }
 
 .club-detail-shell {
@@ -1037,6 +1097,43 @@ textarea:focus-visible {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
   margin-top: 30px;
+}
+
+.club-squad-empty {
+  display: flex;
+  min-height: 150px;
+  align-items: center;
+  gap: 18px;
+  margin-top: 30px;
+  border: 1px dashed rgba(72, 229, 164, 0.28);
+  border-radius: 20px;
+  padding: 24px;
+  background: rgba(72, 229, 164, 0.035);
+}
+
+.club-squad-empty > span {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--club-color) 72%, #10201c);
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 950;
+}
+
+.club-squad-empty strong {
+  font-size: 14px;
+}
+
+.club-squad-empty p {
+  max-width: 560px;
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.7;
 }
 
 .club-player-card {
@@ -1930,6 +2027,12 @@ textarea:focus-visible {
   background: rgba(13, 26, 23, 0.72);
 }
 
+.clubs-panel {
+  display: flex;
+  max-height: 1220px;
+  flex-direction: column;
+}
+
 .panel-title {
   display: flex;
   min-height: 76px;
@@ -1965,7 +2068,17 @@ textarea:focus-visible {
 .club-list {
   display: grid;
   gap: 8px;
+  min-height: 0;
+  overflow-y: auto;
   padding: 12px;
+}
+
+.club-search {
+  margin: 12px 12px 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 11px 13px;
+  background: rgba(255, 255, 255, 0.018);
 }
 
 .club-card {
@@ -2010,10 +2123,11 @@ textarea:focus-visible {
   place-items: center;
   border-radius: 12px;
   background: var(--club-color);
-  color: #07110f;
+  color: #ffffff;
   font-size: 11px;
   font-weight: 950;
   letter-spacing: -0.04em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
 }
 
 .club-card-copy {
@@ -2088,13 +2202,25 @@ textarea:focus-visible {
   white-space: nowrap;
 }
 
+.coordinate-actions {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+}
+
+.coordinate-actions a {
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 800;
+}
+
 .table-scroll {
   overflow-x: auto;
 }
 
 .standings-panel table {
   width: 100%;
-  min-width: 580px;
+  min-width: 760px;
   border-collapse: collapse;
   font-size: 12px;
 }
@@ -2109,9 +2235,7 @@ textarea:focus-visible {
 
 .standings-panel th {
   height: 44px;
-  color: var(--muted);
-  font-size: 9px;
-  font-weight: 750;
+  padding: 0 7px;
 }
 
 .standings-panel th:nth-child(2),
@@ -2119,8 +2243,46 @@ textarea:focus-visible {
   text-align: left;
 }
 
+.table-sort-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  padding: 8px 2px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 9px;
+  font-weight: 750;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.table-sort-button span {
+  color: #71877f;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 8px;
+}
+
+.table-sort-button[data-active="true"],
+.table-sort-button[data-active="true"] span {
+  color: var(--accent);
+}
+
 .standings-panel tbody tr {
   transition: background 160ms ease;
+}
+
+.standings-panel tbody tr[data-zone="champion"] {
+  background: rgba(244, 201, 93, 0.045);
+}
+
+.standings-panel tbody tr[data-zone="champions-league"] {
+  background: rgba(92, 150, 255, 0.035);
+}
+
+.standings-panel tbody tr[data-zone="relegated"] {
+  background: rgba(255, 125, 131, 0.045);
 }
 
 .standings-panel tbody tr:hover,
@@ -2129,8 +2291,24 @@ textarea:focus-visible {
 }
 
 .rank-cell {
+  box-shadow: inset 3px 0 transparent;
   color: var(--muted);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.standings-panel tr[data-zone="champion"] .rank-cell {
+  box-shadow: inset 3px 0 #f4c95d;
+  color: #f4d784;
+}
+
+.standings-panel tr[data-zone="champions-league"] .rank-cell {
+  box-shadow: inset 3px 0 #5c96ff;
+  color: #9abbff;
+}
+
+.standings-panel tr[data-zone="relegated"] .rank-cell {
+  box-shadow: inset 3px 0 var(--danger);
+  color: #ffafb3;
 }
 
 .table-club-button {
@@ -2156,6 +2334,47 @@ textarea:focus-visible {
   color: var(--accent);
   font-size: 14px;
   font-weight: 900;
+}
+
+.standing-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  padding: 13px 18px;
+}
+
+.standing-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.standing-legend small {
+  margin-left: auto;
+  color: #71877f;
+  font-size: 8px;
+}
+
+.standing-legend i {
+  width: 3px;
+  height: 15px;
+  border-radius: 999px;
+  background: var(--border);
+}
+
+.standing-legend span[data-zone="champion"] i {
+  background: #f4c95d;
+}
+
+.standing-legend span[data-zone="champions-league"] i {
+  background: #5c96ff;
+}
+
+.standing-legend span[data-zone="relegated"] i {
+  background: var(--danger);
 }
 
 .sample-notice {
@@ -2251,6 +2470,7 @@ textarea:focus-visible {
   }
 
   .map-explorer {
+    height: auto;
     grid-template-columns: 1fr;
   }
 
@@ -2303,6 +2523,10 @@ textarea:focus-visible {
 
   .data-layout {
     grid-template-columns: 1fr;
+  }
+
+  .clubs-panel {
+    max-height: 820px;
   }
 
   .agent-workspace {
@@ -2478,6 +2702,15 @@ textarea:focus-visible {
   .coordinate-readout {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .coordinate-actions {
+    justify-items: start;
+  }
+
+  .standing-legend small {
+    width: 100%;
+    margin-left: 0;
   }
 
   .agent-section {

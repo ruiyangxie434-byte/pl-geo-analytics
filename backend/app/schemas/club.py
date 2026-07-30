@@ -44,4 +44,8 @@ class ClubListData(BaseModel):
     player_total: int
     limit: int
     offset: int
+    season: str
+    is_complete: bool
+    source_name: str
+    source_url: str
     sample_notice: str

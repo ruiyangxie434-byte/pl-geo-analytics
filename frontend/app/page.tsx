@@ -7,6 +7,11 @@ import { BackendStatus } from "../components/system/backend-status";
 
 const futureModules = [
   {
+    phase: "阶段 5",
+    title: "球员数据中心",
+    description: "加入球员榜、搜索和位置筛选，统一展示每 90 分钟指标。",
+  },
+  {
     phase: "阶段 6",
     title: "球员雷达图",
     description: "按位置计算同位置百分位，更直观地比较球员能力结构。",
@@ -15,11 +20,6 @@ const futureModules = [
     phase: "阶段 7",
     title: "比赛空间分析",
     description: "用来源明确的事件数据展示射门位置、时间线与比赛走势。",
-  },
-  {
-    phase: "竞赛冲刺 4",
-    title: "记忆与报告",
-    description: "保存战术偏好、支持连续追问，并导出球探分析报告。",
   },
 ];
 
@@ -38,7 +38,7 @@ export default function Home() {
             </span>
           </Link>
           <span className="phase-badge">
-            v0.5.0 · Stadium Explorer
+            v0.6.0 · Full League
           </span>
         </header>
 

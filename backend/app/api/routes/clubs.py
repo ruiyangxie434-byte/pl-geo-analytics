@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
+from app.database.seed import SAMPLE_SEASON
 from app.database.session import get_db
 from app.models import Club, Player
 from app.schemas.club import (
@@ -15,7 +16,15 @@ from app.schemas.common import ApiResponse
 
 router = APIRouter(prefix="/clubs", tags=["clubs"])
 
-SAMPLE_NOTICE = "当前返回 6 支球队的结构演示样例，不代表实时或完整英超数据。"
+CLUB_SOURCE_NAME = "Premier League 2024/25 table"
+CLUB_SOURCE_URL = (
+    "https://www.premierleague.com/en/tables/premier-league/"
+    "2024-25/all-matchweeks"
+)
+SAMPLE_NOTICE = (
+    "当前返回 2024-25 赛季完整 20 队与球场地理参考；"
+    "球员阵容仍为 12 人样例，不代表当前实时名单。"
+)
 
 
 def to_club_summary(club: Club) -> ClubSummary:
@@ -56,6 +65,10 @@ def list_clubs(
             player_total=player_total,
             limit=limit,
             offset=offset,
+            season=SAMPLE_SEASON,
+            is_complete=total == 20,
+            source_name=CLUB_SOURCE_NAME,
+            source_url=CLUB_SOURCE_URL,
             sample_notice=SAMPLE_NOTICE,
         ),
     )

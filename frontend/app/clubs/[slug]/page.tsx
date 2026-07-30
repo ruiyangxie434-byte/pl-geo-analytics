@@ -70,7 +70,7 @@ export default function ClubDetailPage() {
               <small>Premier League Insight Agent</small>
             </span>
           </Link>
-          <span className="phase-badge">v0.5.0 · Stadium Explorer</span>
+          <span className="phase-badge">v0.6.0 · Full League</span>
         </header>
 
         <Link className="club-back-link" href="/#club-map">
@@ -119,7 +119,7 @@ export default function ClubDetailPage() {
                 {getClubInitials(club.short_name)}
               </div>
               <div className="club-profile-copy">
-                <p className="eyebrow">CLUB PROFILE · SAMPLE DATA</p>
+                <p className="eyebrow">CLUB PROFILE · 2024/25 REFERENCE</p>
                 <h1>{club.name}</h1>
                 <p>
                   {club.city} · {club.stadium.name}
@@ -159,23 +159,35 @@ export default function ClubDetailPage() {
                 </p>
               </div>
 
-              <div className="club-player-grid">
-                {club.players.map((player) => (
-                  <article className="club-player-card" key={player.slug}>
-                    <span className="player-shirt-number">
-                      {player.shirt_number ?? "—"}
-                    </span>
-                    <div>
-                      <small>
-                        {positionLabels[player.position] ?? player.position}
-                      </small>
-                      <h3>{player.full_name}</h3>
-                      <p>{player.nationality}</p>
-                    </div>
-                    <i aria-hidden="true" />
-                  </article>
-                ))}
-              </div>
+              {club.players.length > 0 ? (
+                <div className="club-player-grid">
+                  {club.players.map((player) => (
+                    <article className="club-player-card" key={player.slug}>
+                      <span className="player-shirt-number">
+                        {player.shirt_number ?? "—"}
+                      </span>
+                      <div>
+                        <small>
+                          {positionLabels[player.position] ?? player.position}
+                        </small>
+                        <h3>{player.full_name}</h3>
+                        <p>{player.nationality}</p>
+                      </div>
+                      <i aria-hidden="true" />
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="club-squad-empty">
+                  <span aria-hidden="true">20</span>
+                  <div>
+                    <strong>球队入口已经就位</strong>
+                    <p>
+                      这支球队的球场与基础资料已接入；球员样例将在球员数据阶段继续扩充。
+                    </p>
+                  </div>
+                </div>
+              )}
 
               <div className="club-detail-actions">
                 <Link className="primary-button" href="/#analysis-agent">

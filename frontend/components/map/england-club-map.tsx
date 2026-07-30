@@ -80,6 +80,7 @@ export function EnglandClubMap() {
   const [state, setState] = useState<MapDataState>("loading");
   const [clubs, setClubs] = useState<ClubListData | null>(null);
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
+  const [clubQuery, setClubQuery] = useState("");
   const [requestId, setRequestId] = useState(0);
 
   useEffect(() => {
@@ -123,6 +124,21 @@ export function EnglandClubMap() {
     [clubs],
   );
 
+  const filteredClubs = useMemo(() => {
+    const query = clubQuery.trim().toLocaleLowerCase();
+    if (!query) {
+      return clubs?.items ?? [];
+    }
+
+    return (
+      clubs?.items.filter((club) =>
+        [club.name, club.short_name, club.city, club.stadium.name].some(
+          (value) => value.toLocaleLowerCase().includes(query),
+        ),
+      ) ?? []
+    );
+  }, [clubQuery, clubs]);
+
   return (
     <section
       className="map-section"
@@ -131,11 +147,11 @@ export function EnglandClubMap() {
     >
       <div className="section-heading map-heading">
         <div>
-          <p className="eyebrow">STADIUM EXPLORER</p>
-          <h2 id="club-map-title">从英格兰地图进入主场</h2>
+          <p className="eyebrow">20-CLUB STADIUM EXPLORER</p>
+          <h2 id="club-map-title">一张地图探索完整联赛</h2>
         </div>
         <p>
-          地图直接读取后端球场坐标。点击标记或右侧球队，即可定位城市并进入球队资料页。
+          2024-25 赛季 20 支球队全部接入。点击标记或搜索球队，即可定位城市并进入资料页。
         </p>
       </div>
 
@@ -172,7 +188,7 @@ export function EnglandClubMap() {
             <div>
               <span>CLUBS</span>
               <strong>{clubs.total}</strong>
-              <small>支样例球队</small>
+              <small>支赛季球队</small>
             </div>
             <div>
               <span>CITIES</span>
@@ -180,9 +196,9 @@ export function EnglandClubMap() {
               <small>座主场城市</small>
             </div>
             <div>
-              <span>DATA SOURCE</span>
-              <strong>API</strong>
-              <small>后端实时读取</small>
+              <span>SEASON</span>
+              <strong>{clubs.season}</strong>
+              <small>历史赛季快照</small>
             </div>
           </div>
 
@@ -191,14 +207,14 @@ export function EnglandClubMap() {
               <div className="map-toolbar">
                 <div>
                   <span className="map-live-dot" aria-hidden="true" />
-                  <strong>ENGLAND · CLUB GROUNDS</strong>
+                  <strong>ENGLAND · 2024/25 CLUB GROUNDS</strong>
                 </div>
                 <small>滚轮缩放已关闭 · 使用 +/- 控制</small>
               </div>
 
               <div
                 className="map-canvas"
-                aria-label="英格兰样例球队球场交互地图"
+                aria-label="英格兰 2024-25 赛季 20 支球队球场交互地图"
               >
                 <LeafletClubMap
                   clubs={clubs.items}
@@ -222,10 +238,24 @@ export function EnglandClubMap() {
               <div className="map-club-list">
                 <div className="map-list-heading">
                   <strong>球队坐标</strong>
-                  <span>{clubs.total.toString().padStart(2, "0")}</span>
+                  <span>
+                    {filteredClubs.length.toString().padStart(2, "0")} /{" "}
+                    {clubs.total.toString().padStart(2, "0")}
+                  </span>
                 </div>
 
-                {clubs.items.map((club, index) => (
+                <div className="map-club-search">
+                  <span aria-hidden="true">⌕</span>
+                  <input
+                    aria-label="在地图列表中搜索球队、城市或球场"
+                    onChange={(event) => setClubQuery(event.target.value)}
+                    placeholder="搜索球队、城市或球场"
+                    type="search"
+                    value={clubQuery}
+                  />
+                </div>
+
+                {filteredClubs.map((club) => (
                   <button
                     className="map-club-button"
                     data-selected={club.slug === selectedClub.slug}
@@ -240,7 +270,13 @@ export function EnglandClubMap() {
                     }
                   >
                     <span className="map-club-index">
-                      {(index + 1).toString().padStart(2, "0")}
+                      {(
+                        clubs.items.findIndex(
+                          (item) => item.slug === club.slug,
+                        ) + 1
+                      )
+                        .toString()
+                        .padStart(2, "0")}
                     </span>
                     <span>
                       <strong>{club.short_name}</strong>
@@ -251,13 +287,24 @@ export function EnglandClubMap() {
                     <i aria-hidden="true" />
                   </button>
                 ))}
+
+                {filteredClubs.length === 0 && (
+                  <div className="map-club-search-empty">
+                    没有匹配的球队，试试搜索城市或球场名。
+                  </div>
+                )}
               </div>
             </aside>
           </div>
 
           <p className="map-sample-notice">
             <span aria-hidden="true">i</span>
-            {clubs.sample_notice} 地图结构已支持继续扩展至完整 20 支球队。
+            <span>
+              {clubs.sample_notice}{" "}
+              <a href={clubs.source_url} rel="noreferrer" target="_blank">
+                查看 {clubs.source_name} ↗
+              </a>
+            </span>
           </p>
         </>
       )}

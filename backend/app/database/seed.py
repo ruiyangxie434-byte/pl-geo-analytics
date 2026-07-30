@@ -6,19 +6,11 @@ from sqlalchemy.orm import Session
 from app.models import Club, Player, PlayerSeasonStat, Standing
 
 SAMPLE_SEASON = "2024-25"
+CLUB_SOURCE_KIND = "reference"
+STANDING_SOURCE_KIND = "historical"
+PLAYER_SOURCE_KIND = "sample"
 
 CLUBS = [
-    {
-        "name": "Liverpool",
-        "short_name": "Liverpool",
-        "slug": "liverpool",
-        "city": "Liverpool",
-        "stadium_name": "Anfield",
-        "stadium_latitude": 53.4308,
-        "stadium_longitude": -2.9608,
-        "founded_year": 1892,
-        "primary_color": "#c8102e",
-    },
     {
         "name": "Arsenal",
         "short_name": "Arsenal",
@@ -31,15 +23,48 @@ CLUBS = [
         "primary_color": "#ef0107",
     },
     {
-        "name": "Manchester City",
-        "short_name": "Man City",
-        "slug": "manchester-city",
-        "city": "Manchester",
-        "stadium_name": "Etihad Stadium",
-        "stadium_latitude": 53.4831,
-        "stadium_longitude": -2.2004,
-        "founded_year": 1880,
-        "primary_color": "#6cabdd",
+        "name": "Aston Villa",
+        "short_name": "Aston Villa",
+        "slug": "aston-villa",
+        "city": "Birmingham",
+        "stadium_name": "Villa Park",
+        "stadium_latitude": 52.5085,
+        "stadium_longitude": -1.8849,
+        "founded_year": 1874,
+        "primary_color": "#670e36",
+    },
+    {
+        "name": "AFC Bournemouth",
+        "short_name": "Bournemouth",
+        "slug": "bournemouth",
+        "city": "Bournemouth",
+        "stadium_name": "Vitality Stadium",
+        "stadium_latitude": 50.7352,
+        "stadium_longitude": -1.8383,
+        "founded_year": 1899,
+        "primary_color": "#da291c",
+    },
+    {
+        "name": "Brentford",
+        "short_name": "Brentford",
+        "slug": "brentford",
+        "city": "London",
+        "stadium_name": "Gtech Community Stadium",
+        "stadium_latitude": 51.4908,
+        "stadium_longitude": -0.2887,
+        "founded_year": 1889,
+        "primary_color": "#e30613",
+    },
+    {
+        "name": "Brighton & Hove Albion",
+        "short_name": "Brighton",
+        "slug": "brighton-and-hove-albion",
+        "city": "Brighton",
+        "stadium_name": "Amex Stadium",
+        "stadium_latitude": 50.8616,
+        "stadium_longitude": -0.0837,
+        "founded_year": 1901,
+        "primary_color": "#0057b8",
     },
     {
         "name": "Chelsea",
@@ -53,6 +78,94 @@ CLUBS = [
         "primary_color": "#034694",
     },
     {
+        "name": "Crystal Palace",
+        "short_name": "Crystal Palace",
+        "slug": "crystal-palace",
+        "city": "London",
+        "stadium_name": "Selhurst Park",
+        "stadium_latitude": 51.3983,
+        "stadium_longitude": -0.0856,
+        "founded_year": 1905,
+        "primary_color": "#1b458f",
+    },
+    {
+        "name": "Everton",
+        "short_name": "Everton",
+        "slug": "everton",
+        "city": "Liverpool",
+        "stadium_name": "Goodison Park",
+        "stadium_latitude": 53.4388,
+        "stadium_longitude": -2.9664,
+        "founded_year": 1878,
+        "primary_color": "#003399",
+    },
+    {
+        "name": "Fulham",
+        "short_name": "Fulham",
+        "slug": "fulham",
+        "city": "London",
+        "stadium_name": "Craven Cottage",
+        "stadium_latitude": 51.4749,
+        "stadium_longitude": -0.2217,
+        "founded_year": 1879,
+        "primary_color": "#111111",
+    },
+    {
+        "name": "Ipswich Town",
+        "short_name": "Ipswich",
+        "slug": "ipswich-town",
+        "city": "Ipswich",
+        "stadium_name": "Portman Road",
+        "stadium_latitude": 52.0550,
+        "stadium_longitude": 1.1448,
+        "founded_year": 1878,
+        "primary_color": "#3a64a3",
+    },
+    {
+        "name": "Leicester City",
+        "short_name": "Leicester",
+        "slug": "leicester-city",
+        "city": "Leicester",
+        "stadium_name": "King Power Stadium",
+        "stadium_latitude": 52.6203,
+        "stadium_longitude": -1.1422,
+        "founded_year": 1884,
+        "primary_color": "#003090",
+    },
+    {
+        "name": "Liverpool",
+        "short_name": "Liverpool",
+        "slug": "liverpool",
+        "city": "Liverpool",
+        "stadium_name": "Anfield",
+        "stadium_latitude": 53.4308,
+        "stadium_longitude": -2.9608,
+        "founded_year": 1892,
+        "primary_color": "#c8102e",
+    },
+    {
+        "name": "Manchester City",
+        "short_name": "Man City",
+        "slug": "manchester-city",
+        "city": "Manchester",
+        "stadium_name": "Etihad Stadium",
+        "stadium_latitude": 53.4831,
+        "stadium_longitude": -2.2004,
+        "founded_year": 1880,
+        "primary_color": "#6cabdd",
+    },
+    {
+        "name": "Manchester United",
+        "short_name": "Man United",
+        "slug": "manchester-united",
+        "city": "Manchester",
+        "stadium_name": "Old Trafford",
+        "stadium_latitude": 53.4631,
+        "stadium_longitude": -2.2913,
+        "founded_year": 1878,
+        "primary_color": "#da291c",
+    },
+    {
         "name": "Newcastle United",
         "short_name": "Newcastle",
         "slug": "newcastle-united",
@@ -64,15 +177,59 @@ CLUBS = [
         "primary_color": "#f1be48",
     },
     {
-        "name": "Aston Villa",
-        "short_name": "Aston Villa",
-        "slug": "aston-villa",
-        "city": "Birmingham",
-        "stadium_name": "Villa Park",
-        "stadium_latitude": 52.5085,
-        "stadium_longitude": -1.8849,
-        "founded_year": 1874,
-        "primary_color": "#95bfe5",
+        "name": "Nottingham Forest",
+        "short_name": "Nott'm Forest",
+        "slug": "nottingham-forest",
+        "city": "Nottingham",
+        "stadium_name": "City Ground",
+        "stadium_latitude": 52.9400,
+        "stadium_longitude": -1.1327,
+        "founded_year": 1865,
+        "primary_color": "#dd0000",
+    },
+    {
+        "name": "Southampton",
+        "short_name": "Southampton",
+        "slug": "southampton",
+        "city": "Southampton",
+        "stadium_name": "St Mary's Stadium",
+        "stadium_latitude": 50.9058,
+        "stadium_longitude": -1.3911,
+        "founded_year": 1885,
+        "primary_color": "#d71920",
+    },
+    {
+        "name": "Tottenham Hotspur",
+        "short_name": "Tottenham",
+        "slug": "tottenham-hotspur",
+        "city": "London",
+        "stadium_name": "Tottenham Hotspur Stadium",
+        "stadium_latitude": 51.6043,
+        "stadium_longitude": -0.0665,
+        "founded_year": 1882,
+        "primary_color": "#132257",
+    },
+    {
+        "name": "West Ham United",
+        "short_name": "West Ham",
+        "slug": "west-ham-united",
+        "city": "London",
+        "stadium_name": "London Stadium",
+        "stadium_latitude": 51.5386,
+        "stadium_longitude": -0.0165,
+        "founded_year": 1895,
+        "primary_color": "#7a263a",
+    },
+    {
+        "name": "Wolverhampton Wanderers",
+        "short_name": "Wolves",
+        "slug": "wolverhampton-wanderers",
+        "city": "Wolverhampton",
+        "stadium_name": "Molineux Stadium",
+        "stadium_latitude": 52.5903,
+        "stadium_longitude": -2.1304,
+        "founded_year": 1877,
+        "primary_color": "#fdb913",
     },
 ]
 
@@ -136,6 +293,146 @@ STANDINGS = {
         "goals_for": 58,
         "goals_against": 51,
         "points": 66,
+    },
+    "nottingham-forest": {
+        "position": 7,
+        "played": 38,
+        "won": 19,
+        "drawn": 8,
+        "lost": 11,
+        "goals_for": 58,
+        "goals_against": 46,
+        "points": 65,
+    },
+    "brighton-and-hove-albion": {
+        "position": 8,
+        "played": 38,
+        "won": 16,
+        "drawn": 13,
+        "lost": 9,
+        "goals_for": 66,
+        "goals_against": 59,
+        "points": 61,
+    },
+    "bournemouth": {
+        "position": 9,
+        "played": 38,
+        "won": 15,
+        "drawn": 11,
+        "lost": 12,
+        "goals_for": 58,
+        "goals_against": 46,
+        "points": 56,
+    },
+    "brentford": {
+        "position": 10,
+        "played": 38,
+        "won": 16,
+        "drawn": 8,
+        "lost": 14,
+        "goals_for": 66,
+        "goals_against": 57,
+        "points": 56,
+    },
+    "fulham": {
+        "position": 11,
+        "played": 38,
+        "won": 15,
+        "drawn": 9,
+        "lost": 14,
+        "goals_for": 54,
+        "goals_against": 54,
+        "points": 54,
+    },
+    "crystal-palace": {
+        "position": 12,
+        "played": 38,
+        "won": 13,
+        "drawn": 14,
+        "lost": 11,
+        "goals_for": 51,
+        "goals_against": 51,
+        "points": 53,
+    },
+    "everton": {
+        "position": 13,
+        "played": 38,
+        "won": 11,
+        "drawn": 15,
+        "lost": 12,
+        "goals_for": 42,
+        "goals_against": 44,
+        "points": 48,
+    },
+    "west-ham-united": {
+        "position": 14,
+        "played": 38,
+        "won": 11,
+        "drawn": 10,
+        "lost": 17,
+        "goals_for": 46,
+        "goals_against": 62,
+        "points": 43,
+    },
+    "manchester-united": {
+        "position": 15,
+        "played": 38,
+        "won": 11,
+        "drawn": 9,
+        "lost": 18,
+        "goals_for": 44,
+        "goals_against": 54,
+        "points": 42,
+    },
+    "wolverhampton-wanderers": {
+        "position": 16,
+        "played": 38,
+        "won": 12,
+        "drawn": 6,
+        "lost": 20,
+        "goals_for": 54,
+        "goals_against": 69,
+        "points": 42,
+    },
+    "tottenham-hotspur": {
+        "position": 17,
+        "played": 38,
+        "won": 11,
+        "drawn": 5,
+        "lost": 22,
+        "goals_for": 64,
+        "goals_against": 65,
+        "points": 38,
+    },
+    "leicester-city": {
+        "position": 18,
+        "played": 38,
+        "won": 6,
+        "drawn": 7,
+        "lost": 25,
+        "goals_for": 33,
+        "goals_against": 80,
+        "points": 25,
+    },
+    "ipswich-town": {
+        "position": 19,
+        "played": 38,
+        "won": 4,
+        "drawn": 10,
+        "lost": 24,
+        "goals_for": 36,
+        "goals_against": 82,
+        "points": 22,
+    },
+    "southampton": {
+        "position": 20,
+        "played": 38,
+        "won": 2,
+        "drawn": 6,
+        "lost": 30,
+        "goals_for": 26,
+        "goals_against": 86,
+        "points": 12,
     },
 }
 
@@ -396,22 +693,31 @@ PLAYERS = {
 
 
 def seed_sample_data(session: Session) -> bool:
-    """Insert missing public sample rows. Returns True when rows were added.
+    """Synchronize the public demo dataset.
 
-    The row-by-row checks intentionally keep this seed idempotent. They also let
-    an existing stage-2 database receive newly added stage-3 sample rows without
-    asking the user to delete their local SQLite file.
+    Club and final-table reference rows are updated in place so an existing
+    v0.5 database can receive the complete league without deleting SQLite.
+    Player and player-stat rows remain clearly marked as samples.
     """
 
-    rows_added = False
+    rows_changed = False
     clubs_by_slug: dict[str, Club] = {}
     for club_data in CLUBS:
         club = session.scalar(select(Club).where(Club.slug == club_data["slug"]))
         if club is None:
-            club = Club(**club_data, source_kind="sample")
+            club = Club(**club_data, source_kind=CLUB_SOURCE_KIND)
             session.add(club)
             session.flush()
-            rows_added = True
+            rows_changed = True
+        else:
+            expected_club_data = {
+                **club_data,
+                "source_kind": CLUB_SOURCE_KIND,
+            }
+            for field, value in expected_club_data.items():
+                if getattr(club, field) != value:
+                    setattr(club, field, value)
+                    rows_changed = True
         clubs_by_slug[club.slug] = club
 
     for slug, standing_data in STANDINGS.items():
@@ -426,11 +732,20 @@ def seed_sample_data(session: Session) -> bool:
                 Standing(
                     club_id=clubs_by_slug[slug].id,
                     season=SAMPLE_SEASON,
-                    source_kind="sample",
+                    source_kind=STANDING_SOURCE_KIND,
                     **standing_data,
                 )
             )
-            rows_added = True
+            rows_changed = True
+        else:
+            expected_standing_data = {
+                **standing_data,
+                "source_kind": STANDING_SOURCE_KIND,
+            }
+            for field, value in expected_standing_data.items():
+                if getattr(standing, field) != value:
+                    setattr(standing, field, value)
+                    rows_changed = True
 
     for slug, players in PLAYERS.items():
         for player_data in players:
@@ -446,11 +761,11 @@ def seed_sample_data(session: Session) -> bool:
                     position=player_data["position"],
                     nationality=player_data["nationality"],
                     date_of_birth=player_data["date_of_birth"],
-                    source_kind="sample",
+                    source_kind=PLAYER_SOURCE_KIND,
                 )
                 session.add(player)
                 session.flush()
-                rows_added = True
+                rows_changed = True
 
             stats = session.scalar(
                 select(PlayerSeasonStat).where(
@@ -463,11 +778,11 @@ def seed_sample_data(session: Session) -> bool:
                     PlayerSeasonStat(
                         player_id=player.id,
                         season=SAMPLE_SEASON,
-                        source_kind="sample",
+                        source_kind=PLAYER_SOURCE_KIND,
                         **player_data["stats"],
                     )
                 )
-                rows_added = True
+                rows_changed = True
 
     session.commit()
-    return rows_added
+    return rows_changed
