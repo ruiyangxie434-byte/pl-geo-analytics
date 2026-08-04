@@ -1,10 +1,7 @@
-from dataclasses import dataclass
 from uuid import uuid4
 
-from sqlalchemy import select
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session
 
-from app.models import Player, PlayerSeasonStat
 from app.schemas.agent import (
     AgentAnalysisData,
     AgentAnalysisRequest,
@@ -18,6 +15,11 @@ from app.schemas.agent import (
     AgentPlayerProfile,
     AgentRecommendation,
     AgentStep,
+)
+from app.services.player_metrics import (
+    PlayerSnapshot,
+    load_player_snapshots,
+    percentile_rank,
 )
 
 SAMPLE_NOTICE = (
@@ -127,31 +129,6 @@ class AgentInputError(ValueError):
     pass
 
 
-@dataclass(frozen=True)
-class PlayerSnapshot:
-    player: Player
-    stats: PlayerSeasonStat
-    per90: dict[str, float]
-
-
-def _per90(value: int | float | None, minutes: int) -> float:
-    if minutes <= 0 or value is None:
-        return 0.0
-    return round(float(value) * 90 / minutes, 2)
-
-
-def _calculate_per90(stats: PlayerSeasonStat) -> dict[str, float]:
-    return {
-        "goals_per90": _per90(stats.goals, stats.minutes),
-        "assists_per90": _per90(stats.assists, stats.minutes),
-        "shots_per90": _per90(stats.shots, stats.minutes),
-        "key_passes_per90": _per90(stats.key_passes, stats.minutes),
-        "tackles_per90": _per90(stats.tackles, stats.minutes),
-        "interceptions_per90": _per90(stats.interceptions, stats.minutes),
-        "expected_goals_per90": _per90(stats.expected_goals, stats.minutes),
-    }
-
-
 def _resolve_focus(request: AgentAnalysisRequest) -> AgentFocus:
     if request.focus != "auto":
         return request.focus
@@ -167,35 +144,8 @@ def _resolve_focus(request: AgentAnalysisRequest) -> AgentFocus:
     return best_focus
 
 
-def _load_snapshots(db: Session, season: str) -> list[PlayerSnapshot]:
-    rows = db.scalars(
-        select(Player)
-        .options(
-            selectinload(Player.club),
-            selectinload(Player.season_stats),
-        )
-        .order_by(Player.full_name)
-    ).all()
-
-    snapshots: list[PlayerSnapshot] = []
-    for player in rows:
-        stats = next(
-            (item for item in player.season_stats if item.season == season),
-            None,
-        )
-        if stats is not None and stats.minutes > 0:
-            snapshots.append(
-                PlayerSnapshot(
-                    player=player,
-                    stats=stats,
-                    per90=_calculate_per90(stats),
-                )
-            )
-    return snapshots
-
-
 def list_agent_players(db: Session, season: str) -> AgentPlayerOptionData:
-    snapshots = _load_snapshots(db, season)
+    snapshots = load_player_snapshots(db, season)
     return AgentPlayerOptionData(
         items=[
             AgentPlayerOption(
@@ -246,13 +196,6 @@ def _resolve_player_slugs(
     return matched[:2]
 
 
-def _percentile(value: float, population: list[float]) -> int:
-    if not population:
-        return 0
-    below_or_equal = sum(item <= value for item in population)
-    return round(below_or_equal / len(population) * 100)
-
-
 def _build_metrics(
     selected: list[PlayerSnapshot],
     population: list[PlayerSnapshot],
@@ -268,7 +211,10 @@ def _build_metrics(
             AgentMetricValue(
                 player_slug=item.player.slug,
                 value=item.per90[key],
-                percentile=_percentile(item.per90[key], population_values),
+                percentile=percentile_rank(
+                    item.per90[key],
+                    population_values,
+                ),
             )
             for item in selected
         ]
@@ -343,7 +289,7 @@ def analyze_players(
     db: Session,
     request: AgentAnalysisRequest,
 ) -> AgentAnalysisData:
-    population = _load_snapshots(db, request.season)
+    population = load_player_snapshots(db, request.season)
     if len(population) < 2:
         raise AgentInputError("当前赛季没有足够的球员样例用于比较")
 

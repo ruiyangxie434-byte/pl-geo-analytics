@@ -2,11 +2,12 @@ from functools import lru_cache
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+APP_VERSION = "0.7.0"
+
 
 class Settings(BaseSettings):
     app_name: str = "Premier League Insight Agent API"
     app_env: str = "development"
-    app_version: str = "0.6.0"
     debug: bool = True
     api_prefix: str = "/api"
     frontend_origins: str = "http://localhost:3000"
@@ -34,6 +35,11 @@ class Settings(BaseSettings):
             for origin in self.frontend_origins.split(",")
             if origin.strip()
         ]
+
+    @property
+    def app_version(self) -> str:
+        """Return the code version so an older local .env cannot mask upgrades."""
+        return APP_VERSION
 
     @property
     def qwen_configured(self) -> bool:

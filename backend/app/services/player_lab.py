@@ -1,0 +1,221 @@
+from sqlalchemy.orm import Session
+
+from app.schemas.player import (
+    PlayerClubData,
+    PlayerLabData,
+    PlayerLabItem,
+    PlayerMetricPercentiles,
+    PlayerPer90Metrics,
+    PlayerPercentileProfile,
+    PlayerPosition,
+    PlayerSeasonTotals,
+    PlayerSortKey,
+    PlayerSortOrder,
+)
+from app.services.player_metrics import (
+    PER90_METRIC_KEYS,
+    PlayerSnapshot,
+    load_player_snapshots,
+    percentile_rank,
+)
+
+DEFAULT_MINIMUM_MINUTES = 450
+MINIMUM_POSITION_PEERS = 3
+SAMPLE_NOTICE = (
+    "当前球员中心包含 12 名 2024-25 赛季演示样例，用于验证筛选、"
+    "每90分钟换算和可视化流程，不代表完整英超球员库或实时数据。"
+)
+PERCENTILE_NOTICE = (
+    "雷达图优先使用同位置样例百分位；当同位置样例少于 3 人时，"
+    "自动回退到全部合格样例，并在球员卡片中标明比较范围。"
+)
+
+
+def _club_data(snapshot: PlayerSnapshot) -> PlayerClubData:
+    club = snapshot.player.club
+    return PlayerClubData(
+        name=club.name,
+        short_name=club.short_name,
+        slug=club.slug,
+        primary_color=club.primary_color,
+    )
+
+
+def _percentile_profile(
+    snapshot: PlayerSnapshot,
+    pool: list[PlayerSnapshot],
+) -> PlayerPercentileProfile:
+    position_peers = [
+        item
+        for item in pool
+        if item.player.position == snapshot.player.position
+    ]
+    if len(position_peers) >= MINIMUM_POSITION_PEERS:
+        peers = position_peers
+        scope = "position_sample"
+    else:
+        peers = pool
+        scope = "all_sample_players"
+
+    metrics = {
+        key: percentile_rank(
+            snapshot.per90[key],
+            [item.per90[key] for item in peers],
+        )
+        for key in PER90_METRIC_KEYS
+    }
+    return PlayerPercentileProfile(
+        scope=scope,
+        peer_count=len(peers),
+        metrics=PlayerMetricPercentiles(**metrics),
+    )
+
+
+def _to_item(
+    snapshot: PlayerSnapshot,
+    season: str,
+    pool: list[PlayerSnapshot],
+) -> PlayerLabItem:
+    player = snapshot.player
+    stats = snapshot.stats
+    return PlayerLabItem(
+        id=player.id,
+        full_name=player.full_name,
+        slug=player.slug,
+        shirt_number=player.shirt_number,
+        position=player.position,
+        nationality=player.nationality,
+        date_of_birth=player.date_of_birth,
+        source_kind=player.source_kind,
+        club=_club_data(snapshot),
+        season=season,
+        totals=PlayerSeasonTotals(
+            appearances=stats.appearances,
+            starts=stats.starts,
+            minutes=stats.minutes,
+            goals=stats.goals,
+            assists=stats.assists,
+            shots=stats.shots,
+            key_passes=stats.key_passes,
+            tackles=stats.tackles,
+            interceptions=stats.interceptions,
+            expected_goals=stats.expected_goals,
+        ),
+        per90=PlayerPer90Metrics(**snapshot.per90),
+        percentiles=_percentile_profile(snapshot, pool),
+    )
+
+
+def _sort_value(item: PlayerLabItem, sort_by: PlayerSortKey) -> str | float:
+    if sort_by == "full_name":
+        return item.full_name.casefold()
+    if sort_by == "club":
+        return item.club.short_name.casefold()
+    if sort_by == "position":
+        return item.position
+    if sort_by in {
+        "goals_per90",
+        "assists_per90",
+        "shots_per90",
+        "key_passes_per90",
+        "tackles_per90",
+        "interceptions_per90",
+        "expected_goals_per90",
+    }:
+        return getattr(item.per90, sort_by)
+    return float(getattr(item.totals, sort_by))
+
+
+def list_player_lab(
+    db: Session,
+    *,
+    season: str,
+    minimum_minutes: int,
+    query: str | None,
+    position: PlayerPosition | None,
+    club_slug: str | None,
+    sort_by: PlayerSortKey,
+    order: PlayerSortOrder,
+    limit: int,
+    offset: int,
+) -> PlayerLabData:
+    pool = load_player_snapshots(db, season, minimum_minutes)
+    items = [_to_item(snapshot, season, pool) for snapshot in pool]
+
+    normalized_query = query.strip().casefold() if query else ""
+    if normalized_query:
+        items = [
+            item
+            for item in items
+            if any(
+                normalized_query in value.casefold()
+                for value in (
+                    item.full_name,
+                    item.club.name,
+                    item.club.short_name,
+                    item.nationality,
+                )
+            )
+        ]
+    if position:
+        items = [item for item in items if item.position == position]
+    if club_slug:
+        items = [item for item in items if item.club.slug == club_slug]
+
+    reverse = order == "desc"
+    items.sort(
+        key=lambda item: (_sort_value(item, sort_by), item.full_name),
+        reverse=reverse,
+    )
+    total = len(items)
+    page_items = items[offset : offset + limit]
+
+    clubs_by_slug = {
+        snapshot.player.club.slug: _club_data(snapshot)
+        for snapshot in pool
+    }
+    available_positions = sorted(
+        {snapshot.player.position for snapshot in pool},
+        key=("GK", "DEF", "MID", "FWD").index,
+    )
+
+    return PlayerLabData(
+        items=page_items,
+        total=total,
+        pool_total=len(pool),
+        season=season,
+        minimum_minutes=minimum_minutes,
+        limit=limit,
+        offset=offset,
+        sort_by=sort_by,
+        order=order,
+        available_positions=available_positions,
+        available_clubs=sorted(
+            clubs_by_slug.values(),
+            key=lambda club: club.short_name,
+        ),
+        sample_notice=SAMPLE_NOTICE,
+        percentile_notice=PERCENTILE_NOTICE,
+    )
+
+
+def get_player_lab_item(
+    db: Session,
+    *,
+    slug: str,
+    season: str,
+) -> PlayerLabItem | None:
+    snapshots = load_player_snapshots(db, season)
+    snapshot = next(
+        (item for item in snapshots if item.player.slug == slug),
+        None,
+    )
+    if snapshot is None:
+        return None
+
+    percentile_pool = load_player_snapshots(
+        db,
+        season,
+        DEFAULT_MINIMUM_MINUTES,
+    )
+    return _to_item(snapshot, season, percentile_pool)

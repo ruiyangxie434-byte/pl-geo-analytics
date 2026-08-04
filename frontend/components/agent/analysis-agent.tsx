@@ -78,6 +78,26 @@ export function AnalysisAgent() {
         }
         setPlayers(playersResponse.data.items);
         setCapabilities(capabilityResponse.data);
+
+        const search = new URLSearchParams(window.location.search);
+        const playerA = search.get("playerA");
+        const playerB = search.get("playerB");
+        const available = new Map(
+          playersResponse.data.items.map((player) => [player.slug, player]),
+        );
+        if (
+          playerA &&
+          playerB &&
+          playerA !== playerB &&
+          available.has(playerA) &&
+          available.has(playerB)
+        ) {
+          setFirstSlug(playerA);
+          setSecondSlug(playerB);
+          setQuestion(
+            `${available.get(playerA)?.full_name} 和 ${available.get(playerB)?.full_name}，谁的综合表现更适合球队？请给出数据依据。`,
+          );
+        }
       } catch {
         if (!controller.signal.aborted) {
           setError("没有读取到可分析球员，请确认后端仍在运行。");
@@ -155,7 +175,7 @@ export function AnalysisAgent() {
             >
               {capabilities?.qwen_configured
                 ? `${capabilities.model} · ONLINE`
-                : "LOCAL SAFE MODE · v0.4"}
+                : "LOCAL SAFE MODE · v0.7"}
             </span>
           </div>
 

@@ -7,19 +7,19 @@ import { BackendStatus } from "../components/system/backend-status";
 
 const futureModules = [
   {
-    phase: "阶段 5",
+    phase: "v0.7 已上线",
     title: "球员数据中心",
-    description: "加入球员榜、搜索和位置筛选，统一展示每 90 分钟指标。",
-  },
-  {
-    phase: "阶段 6",
-    title: "球员雷达图",
-    description: "按位置计算同位置百分位，更直观地比较球员能力结构。",
+    description: "球员榜、分钟筛选、每90指标、详情页与双人百分位雷达已经打通。",
   },
   {
     phase: "阶段 7",
     title: "比赛空间分析",
     description: "用来源明确的事件数据展示射门位置、时间线与比赛走势。",
+  },
+  {
+    phase: "阶段 8",
+    title: "发布与移动端完善",
+    description: "补齐项目截图、接口文档、部署说明和关键页面移动端体验。",
   },
 ];
 
@@ -38,7 +38,7 @@ export default function Home() {
             </span>
           </Link>
           <span className="phase-badge">
-            v0.6.0 · Full League
+            v0.7.0 · Player Lab
           </span>
         </header>
 
@@ -59,6 +59,9 @@ export default function Home() {
               <a className="primary-button" href="#club-map">
                 探索英格兰球场
               </a>
+              <Link className="secondary-button" href="/players">
+                打开球员实验室
+              </Link>
               <a className="secondary-button" href="#analysis-agent">
                 体验分析 Agent
               </a>
@@ -80,7 +83,7 @@ export default function Home() {
               <p className="eyebrow">BUILD ROADMAP</p>
               <h2 id="roadmap-title">接下来做什么</h2>
             </div>
-            <p>地图探索路径已经打通，下一步继续补齐可视化与真实比赛数据。</p>
+            <p>地图、联赛终榜和球员分析链路已经打通，下一步接入可追溯的比赛事件数据。</p>
           </div>
 
           <div className="module-grid">

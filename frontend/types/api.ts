@@ -90,6 +90,115 @@ export interface StandingTableData {
   sample_notice: string;
 }
 
+export type PlayerPosition = "FWD" | "MID" | "DEF" | "GK";
+
+export type PlayerSortKey =
+  | "full_name"
+  | "club"
+  | "position"
+  | "minutes"
+  | "goals"
+  | "assists"
+  | "goals_per90"
+  | "assists_per90"
+  | "shots_per90"
+  | "key_passes_per90"
+  | "tackles_per90"
+  | "interceptions_per90"
+  | "expected_goals_per90";
+
+export type PlayerSortOrder = "asc" | "desc";
+
+export interface PlayerClubData {
+  name: string;
+  short_name: string;
+  slug: string;
+  primary_color: string;
+}
+
+export interface PlayerSeasonTotals {
+  appearances: number;
+  starts: number;
+  minutes: number;
+  goals: number;
+  assists: number;
+  shots: number;
+  key_passes: number;
+  tackles: number;
+  interceptions: number;
+  expected_goals: number | null;
+}
+
+export interface PlayerPer90Metrics {
+  goals_per90: number;
+  assists_per90: number;
+  shots_per90: number;
+  key_passes_per90: number;
+  tackles_per90: number;
+  interceptions_per90: number;
+  expected_goals_per90: number;
+}
+
+export interface PlayerMetricPercentiles {
+  goals_per90: number;
+  assists_per90: number;
+  shots_per90: number;
+  key_passes_per90: number;
+  tackles_per90: number;
+  interceptions_per90: number;
+  expected_goals_per90: number;
+}
+
+export interface PlayerPercentileProfile {
+  scope: "position_sample" | "all_sample_players";
+  peer_count: number;
+  metrics: PlayerMetricPercentiles;
+}
+
+export interface PlayerLabItem {
+  id: number;
+  full_name: string;
+  slug: string;
+  shirt_number: number | null;
+  position: PlayerPosition;
+  nationality: string;
+  date_of_birth: string | null;
+  source_kind: "sample";
+  club: PlayerClubData;
+  season: string;
+  totals: PlayerSeasonTotals;
+  per90: PlayerPer90Metrics;
+  percentiles: PlayerPercentileProfile;
+}
+
+export interface PlayerLabData {
+  items: PlayerLabItem[];
+  total: number;
+  pool_total: number;
+  season: string;
+  minimum_minutes: number;
+  limit: number;
+  offset: number;
+  sort_by: PlayerSortKey;
+  order: PlayerSortOrder;
+  available_positions: PlayerPosition[];
+  available_clubs: PlayerClubData[];
+  sample_notice: string;
+  percentile_notice: string;
+}
+
+export interface PlayerLabQuery {
+  season?: string;
+  minimumMinutes?: number;
+  query?: string;
+  position?: PlayerPosition;
+  clubSlug?: string;
+  sortBy?: PlayerSortKey;
+  order?: PlayerSortOrder;
+  limit?: number;
+  offset?: number;
+}
+
 export type AgentFocus =
   | "balanced"
   | "scoring"

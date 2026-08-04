@@ -7,6 +7,9 @@ import type {
   ClubDetailData,
   ClubListData,
   HealthData,
+  PlayerLabData,
+  PlayerLabItem,
+  PlayerLabQuery,
   StandingTableData,
 } from "../types/api";
 
@@ -74,6 +77,41 @@ export function getStandings(
 ): Promise<ApiResponse<StandingTableData>> {
   return getApiData<StandingTableData>(
     `/standings?season=${encodeURIComponent(season)}`,
+    signal,
+  );
+}
+
+export function getPlayers(
+  options: PlayerLabQuery = {},
+  signal?: AbortSignal,
+): Promise<ApiResponse<PlayerLabData>> {
+  const search = new URLSearchParams({
+    season: options.season ?? "2024-25",
+    minimum_minutes: String(options.minimumMinutes ?? 450),
+    sort_by: options.sortBy ?? "goals_per90",
+    order: options.order ?? "desc",
+    limit: String(options.limit ?? 100),
+    offset: String(options.offset ?? 0),
+  });
+  if (options.query) {
+    search.set("query", options.query);
+  }
+  if (options.position) {
+    search.set("position", options.position);
+  }
+  if (options.clubSlug) {
+    search.set("club_slug", options.clubSlug);
+  }
+  return getApiData<PlayerLabData>(`/players?${search.toString()}`, signal);
+}
+
+export function getPlayer(
+  slug: string,
+  season = "2024-25",
+  signal?: AbortSignal,
+): Promise<ApiResponse<PlayerLabItem>> {
+  return getApiData<PlayerLabItem>(
+    `/players/${encodeURIComponent(slug)}?season=${encodeURIComponent(season)}`,
     signal,
   );
 }
