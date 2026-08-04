@@ -18,13 +18,7 @@
 
 ## Windows 配置
 
-打开项目中的 `backend/.env`。如果你是从 `v0.3.0` 更新，请先把版本改为：
-
-```env
-APP_VERSION=0.4.0
-```
-
-再在文件末尾加入：
+打开项目中的 `backend/.env`，在文件末尾加入：
 
 ```env
 DASHSCOPE_API_KEY=把你自己的百炼API-Key填在这里

@@ -70,7 +70,7 @@ export default function ClubDetailPage() {
               <small>Premier League Insight Agent</small>
             </span>
           </Link>
-          <span className="phase-badge">v0.6.0 · Full League</span>
+          <span className="phase-badge">v0.7.0 · Player Lab</span>
         </header>
 
         <Link className="club-back-link" href="/#club-map">
@@ -190,7 +190,10 @@ export default function ClubDetailPage() {
               )}
 
               <div className="club-detail-actions">
-                <Link className="primary-button" href="/#analysis-agent">
+                <Link className="primary-button" href="/players">
+                  打开球员实验室
+                </Link>
+                <Link className="secondary-button" href="/#analysis-agent">
                   用 Agent 比较球员
                 </Link>
                 <Link className="secondary-button" href="/#data-preview">
