@@ -175,7 +175,7 @@ export function AnalysisAgent() {
             >
               {capabilities?.qwen_configured
                 ? `${capabilities.model} · ONLINE`
-                : "LOCAL SAFE MODE · v0.7"}
+                : "LOCAL SAFE MODE · v0.8"}
             </span>
           </div>
 

@@ -22,6 +22,7 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 next-env.d.ts
+*.tsbuildinfo
 
 # Python
 __pycache__/
@@ -45,6 +46,7 @@ data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+!data/processed/statsbomb_match_3749448.json
 
 # IDE and operating system
 .vscode/

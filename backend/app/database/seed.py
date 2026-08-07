@@ -1,14 +1,23 @@
-from datetime import date
+import json
+from datetime import date, datetime
+from pathlib import Path
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models import Club, Player, PlayerSeasonStat, Standing
+from app.models import Club, Match, MatchEvent, Player, PlayerSeasonStat, Standing
 
 SAMPLE_SEASON = "2024-25"
 CLUB_SOURCE_KIND = "reference"
 STANDING_SOURCE_KIND = "historical"
 PLAYER_SOURCE_KIND = "sample"
+MATCH_SOURCE_KIND = "open-data"
+MATCH_SNAPSHOT_PATH = (
+    Path(__file__).resolve().parents[3]
+    / "data"
+    / "processed"
+    / "statsbomb_match_3749448.json"
+)
 
 CLUBS = [
     {
@@ -692,12 +701,101 @@ PLAYERS = {
 }
 
 
+def load_match_snapshot() -> dict:
+    return json.loads(MATCH_SNAPSHOT_PATH.read_text(encoding="utf-8"))
+
+
+def seed_match_snapshot(
+    session: Session,
+    clubs_by_slug: dict[str, Club],
+) -> bool:
+    snapshot = load_match_snapshot()
+    match_data = snapshot["match"]
+    source_match_id = match_data["source_match_id"]
+    kickoff_at = datetime.fromisoformat(
+        f"{match_data['match_date']}T{match_data['kick_off']}"
+    )
+    home_slug = match_data["home_team"].casefold().replace(" ", "-")
+    away_slug = match_data["away_team"].casefold().replace(" ", "-")
+    home_club = clubs_by_slug[home_slug]
+    away_club = clubs_by_slug[away_slug]
+    expected_match = {
+        "season": match_data["season"],
+        "matchweek": match_data["matchweek"],
+        "kickoff_at": kickoff_at,
+        "home_club_id": home_club.id,
+        "away_club_id": away_club.id,
+        "home_score": match_data["home_score"],
+        "away_score": match_data["away_score"],
+        "venue": match_data["venue"],
+        "status": match_data["status"],
+        "source_kind": MATCH_SOURCE_KIND,
+    }
+
+    rows_changed = False
+    match = session.scalar(
+        select(Match).where(Match.source_match_id == source_match_id)
+    )
+    if match is None:
+        match = Match(source_match_id=source_match_id, **expected_match)
+        session.add(match)
+        session.flush()
+        rows_changed = True
+    else:
+        for field, value in expected_match.items():
+            if getattr(match, field) != value:
+                setattr(match, field, value)
+                rows_changed = True
+
+    for shot in snapshot["shots"]:
+        event = session.scalar(
+            select(MatchEvent).where(
+                MatchEvent.source_event_id == shot["source_event_id"]
+            )
+        )
+        expected_event = {
+            "match_id": match.id,
+            "club_id": clubs_by_slug[shot["team_slug"]].id,
+            "player_id": None,
+            "player_name": shot["player_name"],
+            "period": shot["period"],
+            "minute": shot["minute"],
+            "second": shot["second"],
+            "event_type": "shot",
+            "outcome": shot["outcome"],
+            "x": shot["x"],
+            "y": shot["y"],
+            "xg": shot["xg"],
+            "body_part": shot["body_part"],
+            "shot_type": shot["shot_type"],
+            "play_pattern": shot["play_pattern"],
+            "source_kind": MATCH_SOURCE_KIND,
+        }
+        if event is None:
+            session.add(
+                MatchEvent(
+                    source_event_id=shot["source_event_id"],
+                    **expected_event,
+                )
+            )
+            rows_changed = True
+        else:
+            for field, value in expected_event.items():
+                if getattr(event, field) != value:
+                    setattr(event, field, value)
+                    rows_changed = True
+
+    return rows_changed
+
+
 def seed_sample_data(session: Session) -> bool:
     """Synchronize the public demo dataset.
 
     Club and final-table reference rows are updated in place so an existing
     v0.5 database can receive the complete league without deleting SQLite.
-    Player and player-stat rows remain clearly marked as samples.
+    Player and player-stat rows remain clearly marked as samples.  The featured
+    historical match is synchronized from a compact StatsBomb Open Data
+    snapshot and retains separate provenance.
     """
 
     rows_changed = False
@@ -783,6 +881,9 @@ def seed_sample_data(session: Session) -> bool:
                     )
                 )
                 rows_changed = True
+
+    if seed_match_snapshot(session, clubs_by_slug):
+        rows_changed = True
 
     session.commit()
     return rows_changed

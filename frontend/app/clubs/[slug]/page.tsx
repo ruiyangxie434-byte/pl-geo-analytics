@@ -26,6 +26,17 @@ function getClubInitials(name: string) {
     .toUpperCase();
 }
 
+function formatMatchDate(value: string | null) {
+  if (!value) {
+    return "日期待确认";
+  }
+  return new Intl.DateTimeFormat("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(value));
+}
+
 export default function ClubDetailPage() {
   const params = useParams<{ slug: string }>();
   const [state, setState] = useState<ClubPageState>("loading");
@@ -70,7 +81,7 @@ export default function ClubDetailPage() {
               <small>Premier League Insight Agent</small>
             </span>
           </Link>
-          <span className="phase-badge">v0.7.0 · Player Lab</span>
+          <span className="phase-badge">v0.8.0 · Match Lab</span>
         </header>
 
         <Link className="club-back-link" href="/#club-map">
@@ -189,6 +200,28 @@ export default function ClubDetailPage() {
                 </div>
               )}
 
+              {club.featured_matches.length > 0 && (
+                <div className="club-match-preview">
+                  <div>
+                    <span>OPEN EVENT SNAPSHOT</span>
+                    <strong>这支球队有一场可分析比赛</strong>
+                    <p>从球队资料继续进入射门位置、xG 对比和进球时间线。</p>
+                  </div>
+                  {club.featured_matches.map((match) => (
+                    <Link
+                      href={`/matches/${match.source_match_id}`}
+                      key={match.source_match_id}
+                    >
+                      <small>{match.season} · {formatMatchDate(match.kickoff_at)}</small>
+                      <strong>
+                        {match.home_club_name} {match.home_score}–{match.away_score} {match.away_club_name}
+                      </strong>
+                      <span>{match.venue} · 打开比赛分析 →</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+
               <div className="club-detail-actions">
                 <Link className="primary-button" href="/players">
                   打开球员实验室
@@ -198,6 +231,9 @@ export default function ClubDetailPage() {
                 </Link>
                 <Link className="secondary-button" href="/#data-preview">
                   查看积分榜样例
+                </Link>
+                <Link className="secondary-button" href="/matches">
+                  打开比赛实验室
                 </Link>
               </div>
             </section>

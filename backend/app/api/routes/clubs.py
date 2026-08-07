@@ -4,10 +4,11 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.database.seed import SAMPLE_SEASON
 from app.database.session import get_db
-from app.models import Club, Player
+from app.models import Club, Match, Player
 from app.schemas.club import (
     ClubDetail,
     ClubListData,
+    ClubMatchPreview,
     ClubSummary,
     PlayerSummary,
     StadiumData,
@@ -42,6 +43,23 @@ def to_club_summary(club: Club) -> ClubSummary:
         founded_year=club.founded_year,
         primary_color=club.primary_color,
         source_kind=club.source_kind,
+    )
+
+
+def to_match_preview(match: Match) -> ClubMatchPreview | None:
+    if match.source_match_id is None:
+        return None
+    return ClubMatchPreview(
+        source_match_id=match.source_match_id,
+        season=match.season,
+        kickoff_at=match.kickoff_at,
+        home_club_name=match.home_club.short_name,
+        home_club_slug=match.home_club.slug,
+        home_score=match.home_score or 0,
+        away_club_name=match.away_club.short_name,
+        away_club_slug=match.away_club.slug,
+        away_score=match.away_score or 0,
+        venue=match.venue,
     )
 
 
@@ -81,13 +99,25 @@ def get_club(
 ) -> ApiResponse[ClubDetail]:
     club = db.scalar(
         select(Club)
-        .options(selectinload(Club.players))
+        .options(
+            selectinload(Club.players),
+            selectinload(Club.home_matches).selectinload(Match.away_club),
+            selectinload(Club.away_matches).selectinload(Match.home_club),
+        )
         .where(Club.slug == slug)
     )
     if club is None:
         raise HTTPException(status_code=404, detail="未找到该球队")
 
     summary = to_club_summary(club)
+    match_previews = [
+        preview
+        for preview in (
+            to_match_preview(match)
+            for match in [*club.home_matches, *club.away_matches]
+        )
+        if preview is not None
+    ]
     return ApiResponse(
         message="球队详情获取成功",
         data=ClubDetail(
@@ -103,5 +133,14 @@ def get_club(
                     ),
                 )
             ],
+            featured_matches=sorted(
+                match_previews,
+                key=lambda item: (
+                    item.kickoff_at.isoformat()
+                    if item.kickoff_at is not None
+                    else ""
+                ),
+                reverse=True,
+            ),
         ),
     )

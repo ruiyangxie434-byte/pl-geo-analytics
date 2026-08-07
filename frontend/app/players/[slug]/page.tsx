@@ -108,7 +108,7 @@ export default function PlayerDetailPage() {
               <small>Premier League Insight Agent</small>
             </span>
           </Link>
-          <span className="phase-badge">v0.7.0 · Player Lab</span>
+          <span className="phase-badge">v0.8.0 · Match Lab</span>
         </header>
 
         <Link className="club-back-link" href="/players">
