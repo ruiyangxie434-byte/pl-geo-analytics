@@ -7,19 +7,19 @@ import { BackendStatus } from "../components/system/backend-status";
 
 const futureModules = [
   {
-    phase: "v0.7 已上线",
-    title: "球员数据中心",
-    description: "球员榜、分钟筛选、每90指标、详情页与双人百分位雷达已经打通。",
-  },
-  {
-    phase: "阶段 7",
-    title: "比赛空间分析",
-    description: "用来源明确的事件数据展示射门位置、时间线与比赛走势。",
+    phase: "v0.8 已上线",
+    title: "真实比赛实验室",
+    description: "公开事件快照、双队射门图、xG 对比、进球时间线与来源边界已经打通。",
   },
   {
     phase: "阶段 8",
-    title: "发布与移动端完善",
-    description: "补齐项目截图、接口文档、部署说明和关键页面移动端体验。",
+    title: "作品展示完善",
+    description: "补齐关键页面截图、接口清单、部署说明和移动端细节。",
+  },
+  {
+    phase: "v1.0 目标",
+    title: "在线演示发布",
+    description: "完成安全部署、最终回归测试和首个可公开访问版本。",
   },
 ];
 
@@ -38,7 +38,7 @@ export default function Home() {
             </span>
           </Link>
           <span className="phase-badge">
-            v0.7.0 · Player Lab
+            v0.8.0 · Match Lab
           </span>
         </header>
 
@@ -53,7 +53,7 @@ export default function Home() {
             </h1>
             <p className="hero-description">
               在英格兰地图上探索球队与球场，再让英超智析 Agent
-              自动查询球员数据、换算每90分钟指标，并基于可追溯证据组织回答。
+              查询球员数据、换算每90分钟指标，并用真实比赛事件还原射门与进球过程。
             </p>
             <div className="hero-actions">
               <a className="primary-button" href="#club-map">
@@ -61,6 +61,9 @@ export default function Home() {
               </a>
               <Link className="secondary-button" href="/players">
                 打开球员实验室
+              </Link>
+              <Link className="secondary-button" href="/matches">
+                打开比赛实验室
               </Link>
               <a className="secondary-button" href="#analysis-agent">
                 体验分析 Agent
@@ -83,7 +86,7 @@ export default function Home() {
               <p className="eyebrow">BUILD ROADMAP</p>
               <h2 id="roadmap-title">接下来做什么</h2>
             </div>
-            <p>地图、联赛终榜和球员分析链路已经打通，下一步接入可追溯的比赛事件数据。</p>
+            <p>地图、联赛终榜、球员分析与真实比赛事件链路已经打通，下一步面向 v1.0 完善发布质量。</p>
           </div>
 
           <div className="module-grid">

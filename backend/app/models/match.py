@@ -37,6 +37,12 @@ class Match(Base):
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    source_match_id: Mapped[str | None] = mapped_column(
+        String(40),
+        nullable=True,
+        unique=True,
+        index=True,
+    )
     season: Mapped[str] = mapped_column(String(9), index=True)
     matchweek: Mapped[int] = mapped_column(Integer)
     kickoff_at: Mapped[datetime | None] = mapped_column(

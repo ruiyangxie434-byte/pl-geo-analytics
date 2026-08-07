@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Premier League Insight Agent",
-  description: "英超地理探索、球员数据中心、雷达对比与足球分析 Agent",
+  description: "英超地理探索、球员与真实比赛事件分析、雷达对比和足球 Agent",
 };
 
 export default function RootLayout({

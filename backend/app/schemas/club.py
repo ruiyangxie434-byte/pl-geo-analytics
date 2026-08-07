@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict
 
@@ -34,8 +34,22 @@ class PlayerSummary(BaseModel):
     source_kind: str
 
 
+class ClubMatchPreview(BaseModel):
+    source_match_id: str
+    season: str
+    kickoff_at: datetime | None
+    home_club_name: str
+    home_club_slug: str
+    home_score: int
+    away_club_name: str
+    away_club_slug: str
+    away_score: int
+    venue: str
+
+
 class ClubDetail(ClubSummary):
     players: list[PlayerSummary]
+    featured_matches: list[ClubMatchPreview]
 
 
 class ClubListData(BaseModel):

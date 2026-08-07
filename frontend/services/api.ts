@@ -7,6 +7,8 @@ import type {
   ClubDetailData,
   ClubListData,
   HealthData,
+  MatchDetailData,
+  MatchListData,
   PlayerLabData,
   PlayerLabItem,
   PlayerLabQuery,
@@ -77,6 +79,22 @@ export function getStandings(
 ): Promise<ApiResponse<StandingTableData>> {
   return getApiData<StandingTableData>(
     `/standings?season=${encodeURIComponent(season)}`,
+    signal,
+  );
+}
+
+export function getMatches(
+  signal?: AbortSignal,
+): Promise<ApiResponse<MatchListData>> {
+  return getApiData<MatchListData>("/matches", signal);
+}
+
+export function getMatch(
+  sourceMatchId: string,
+  signal?: AbortSignal,
+): Promise<ApiResponse<MatchDetailData>> {
+  return getApiData<MatchDetailData>(
+    `/matches/${encodeURIComponent(sourceMatchId)}`,
     signal,
   );
 }

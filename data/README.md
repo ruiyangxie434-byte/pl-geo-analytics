@@ -8,3 +8,5 @@
 | `sample/` | 可以公开到 GitHub 的演示数据 | 是 |
 
 每份数据都应记录来源、获取日期、许可证或使用条件，以及它属于真实公开数据还是人工示例数据。
+
+`processed/statsbomb_match_3749448.json` 是当前唯一提交的处理后事件快照：它只保留 Match Lab 所需的 28 次射门字段，并可通过 `scripts/build_match_snapshot.py` 从 StatsBomb Open Data 重建。原始 2.5 MB 事件文件不进入仓库。

@@ -57,6 +57,8 @@ def test_club_detail_includes_sample_players(api_client: TestClient) -> None:
         "Mohamed Salah",
         "Virgil van Dijk",
     }
+    assert len(data["featured_matches"]) == 1
+    assert data["featured_matches"][0]["source_match_id"] == "3749448"
 
 
 def test_club_list_exposes_valid_stadium_coordinates_for_map(

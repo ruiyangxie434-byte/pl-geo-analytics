@@ -16,12 +16,26 @@ class MatchEvent(Base):
     __table_args__ = (
         Index("ix_match_events_match_time", "match_id", "minute", "second"),
         CheckConstraint("minute >= 0", name="ck_match_events_minute"),
+        CheckConstraint(
+            "period BETWEEN 1 AND 5",
+            name="ck_match_events_period",
+        ),
         CheckConstraint("second BETWEEN 0 AND 59", name="ck_match_events_second"),
         CheckConstraint("x IS NULL OR x BETWEEN 0 AND 100", name="ck_match_events_x"),
         CheckConstraint("y IS NULL OR y BETWEEN 0 AND 100", name="ck_match_events_y"),
+        CheckConstraint(
+            "xg IS NULL OR xg BETWEEN 0 AND 1",
+            name="ck_match_events_xg",
+        ),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    source_event_id: Mapped[str | None] = mapped_column(
+        String(40),
+        nullable=True,
+        unique=True,
+        index=True,
+    )
     match_id: Mapped[int] = mapped_column(
         ForeignKey("matches.id", ondelete="CASCADE"),
         index=True,
@@ -35,12 +49,18 @@ class MatchEvent(Base):
         nullable=True,
         index=True,
     )
+    player_name: Mapped[str | None] = mapped_column(String(140), nullable=True)
+    period: Mapped[int] = mapped_column(Integer, default=1)
     minute: Mapped[int] = mapped_column(Integer)
     second: Mapped[int] = mapped_column(Integer, default=0)
     event_type: Mapped[str] = mapped_column(String(40), index=True)
     outcome: Mapped[str | None] = mapped_column(String(40), nullable=True)
     x: Mapped[float | None] = mapped_column(Float, nullable=True)
     y: Mapped[float | None] = mapped_column(Float, nullable=True)
+    xg: Mapped[float | None] = mapped_column(Float, nullable=True)
+    body_part: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    shot_type: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    play_pattern: Mapped[str | None] = mapped_column(String(80), nullable=True)
     source_kind: Mapped[str] = mapped_column(
         String(20),
         default="sample",

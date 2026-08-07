@@ -55,6 +55,20 @@ export interface ClubPlayerSummary {
 
 export interface ClubDetailData extends ClubSummary {
   players: ClubPlayerSummary[];
+  featured_matches: ClubMatchPreview[];
+}
+
+export interface ClubMatchPreview {
+  source_match_id: string;
+  season: string;
+  kickoff_at: string | null;
+  home_club_name: string;
+  home_club_slug: string;
+  home_score: number;
+  away_club_name: string;
+  away_club_slug: string;
+  away_score: number;
+  venue: string;
 }
 
 export interface StandingClub {
@@ -88,6 +102,72 @@ export interface StandingTableData {
   source_name: string;
   source_url: string;
   sample_notice: string;
+}
+
+export interface MatchTeamData {
+  id: number;
+  name: string;
+  short_name: string;
+  slug: string;
+  primary_color: string;
+  score: number;
+  shots: number;
+  goals: number;
+  total_xg: number;
+}
+
+export interface MatchShotData {
+  source_event_id: string;
+  period: number;
+  minute: number;
+  second: number;
+  team_name: string;
+  team_slug: string;
+  team_color: string;
+  player_name: string | null;
+  outcome: string;
+  is_goal: boolean;
+  x: number;
+  y: number;
+  xg: number;
+  body_part: string | null;
+  shot_type: string | null;
+  play_pattern: string | null;
+}
+
+export interface MatchSummaryData {
+  source_match_id: string;
+  competition: string;
+  season: string;
+  matchweek: number;
+  kickoff_at: string | null;
+  venue: string;
+  status: string;
+  home_team: MatchTeamData;
+  away_team: MatchTeamData;
+  shot_count: number;
+  goal_count: number;
+  total_xg: number;
+  source_kind: "open-data";
+}
+
+export interface MatchListData {
+  items: MatchSummaryData[];
+  total: number;
+  source_name: string;
+  source_url: string;
+  license_url: string;
+  sample_notice: string;
+}
+
+export interface MatchDetailData extends MatchSummaryData {
+  shots: MatchShotData[];
+  source_name: string;
+  source_url: string;
+  license_url: string;
+  source_last_updated: string;
+  coordinate_note: string;
+  interpretation_note: string;
 }
 
 export type PlayerPosition = "FWD" | "MID" | "DEF" | "GK";
