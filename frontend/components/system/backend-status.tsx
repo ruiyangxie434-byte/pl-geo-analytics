@@ -77,7 +77,7 @@ export function BackendStatus() {
           </div>
           <div className="status-row">
             <span>版本</span>
-            <strong>{health?.version ?? "0.8.0"}</strong>
+            <strong>{health?.version ?? "0.9.0"}</strong>
           </div>
         </div>
       </div>

@@ -64,6 +64,7 @@ def _build_grounding_payload(result: AgentAnalysisData) -> dict[str, Any]:
         ],
         "limitations": result.limitations,
         "sample_notice": result.sample_notice,
+        "run_context": result.context.model_dump(),
     }
 
 

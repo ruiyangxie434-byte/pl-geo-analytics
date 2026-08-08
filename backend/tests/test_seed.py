@@ -4,7 +4,7 @@ from sqlalchemy.pool import StaticPool
 
 from app.database.seed import SAMPLE_SEASON, seed_sample_data
 from app.database.session import create_schema
-from app.models import Club, Match, MatchEvent, Standing
+from app.models import AgentRun, Club, Match, MatchEvent, Standing
 
 
 def create_test_engine():
@@ -26,6 +26,7 @@ def test_seed_is_idempotent() -> None:
         assert session.scalar(select(func.count(Standing.id))) == 20
         assert session.scalar(select(func.count(Match.id))) == 1
         assert session.scalar(select(func.count(MatchEvent.id))) == 28
+        assert session.scalar(select(func.count(AgentRun.id))) == 0
 
     engine.dispose()
 

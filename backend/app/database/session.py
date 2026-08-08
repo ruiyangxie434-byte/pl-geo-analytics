@@ -50,11 +50,26 @@ def get_db() -> Generator[Session, None, None]:
 
 
 def create_schema(database_engine: Engine = engine) -> None:
-    from app.models import Club, Match, MatchEvent, Player, PlayerSeasonStat, Standing
+    from app.models import (
+        AgentRun,
+        Club,
+        Match,
+        MatchEvent,
+        Player,
+        PlayerSeasonStat,
+        Standing,
+    )
 
-    _ = (Club, Match, MatchEvent, Player, PlayerSeasonStat, Standing)
+    _ = (
+        AgentRun,
+        Club,
+        Match,
+        MatchEvent,
+        Player,
+        PlayerSeasonStat,
+        Standing,
+    )
 
     from app.database.base import Base
 
     Base.metadata.create_all(bind=database_engine)
-

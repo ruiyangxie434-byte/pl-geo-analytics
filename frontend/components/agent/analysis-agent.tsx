@@ -1,18 +1,23 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties, FormEvent } from "react";
 
 import {
   getAgentCapabilities,
   getAgentPlayers,
+  getAgentRun,
+  getAgentRuns,
   runAgentAnalysis,
+  runAgentFollowUp,
 } from "../../services/api";
 import type {
   AgentAnalysisData,
   AgentCapabilitiesData,
   AgentPlayerOption,
   AgentRequestedFocus,
+  AgentRunSummary,
 } from "../../types/api";
 
 const FOCUS_OPTIONS: {
@@ -47,6 +52,15 @@ const FOCUS_OPTIONS: {
   },
 ];
 
+function formatRunTime(value: string) {
+  return new Intl.DateTimeFormat("zh-CN", {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
+
 export function AnalysisAgent() {
   const [players, setPlayers] = useState<AgentPlayerOption[]>([]);
   const [capabilities, setCapabilities] =
@@ -62,22 +76,30 @@ export function AnalysisAgent() {
   const [isRunning, setIsRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AgentAnalysisData | null>(null);
+  const [runs, setRuns] = useState<AgentRunSummary[]>([]);
+  const [isLoadingRuns, setIsLoadingRuns] = useState(true);
+  const [openingRunId, setOpeningRunId] = useState<string | null>(null);
+  const [followUpQuestion, setFollowUpQuestion] = useState("");
+  const [isFollowingUp, setIsFollowingUp] = useState(false);
+  const [followUpError, setFollowUpError] = useState<string | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
 
     async function loadAgentData() {
       try {
-        const [playersResponse, capabilityResponse] =
+        const [playersResponse, capabilityResponse, runResponse] =
           await Promise.all([
             getAgentPlayers("2024-25", controller.signal),
             getAgentCapabilities(controller.signal),
+            getAgentRuns(8, controller.signal),
           ]);
         if (!playersResponse.data) {
           throw new Error("接口未返回球员数据");
         }
         setPlayers(playersResponse.data.items);
         setCapabilities(capabilityResponse.data);
+        setRuns(runResponse.data?.items ?? []);
 
         const search = new URLSearchParams(window.location.search);
         const playerA = search.get("playerA");
@@ -105,6 +127,7 @@ export function AnalysisAgent() {
       } finally {
         if (!controller.signal.aborted) {
           setIsLoadingPlayers(false);
+          setIsLoadingRuns(false);
         }
       }
     }
@@ -117,6 +140,15 @@ export function AnalysisAgent() {
     () => new Map(players.map((player) => [player.slug, player])),
     [players],
   );
+
+  async function refreshRunHistory() {
+    try {
+      const response = await getAgentRuns(8);
+      setRuns(response.data?.items ?? []);
+    } catch {
+      // A completed analysis remains usable even if history refresh fails.
+    }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -138,6 +170,8 @@ export function AnalysisAgent() {
         throw new Error("Agent 没有返回分析结果");
       }
       setResult(response.data);
+      setFollowUpQuestion("");
+      await refreshRunHistory();
     } catch (requestError) {
       setError(
         requestError instanceof Error
@@ -149,6 +183,62 @@ export function AnalysisAgent() {
     }
   }
 
+  async function handleOpenRun(runId: string) {
+    setOpeningRunId(runId);
+    setError(null);
+    try {
+      const response = await getAgentRun(runId);
+      if (!response.data) {
+        throw new Error("没有读取到分析记录");
+      }
+      const restored = response.data.result;
+      setResult(restored);
+      setQuestion(restored.question);
+      setFocus(restored.requested_focus);
+      setFirstSlug(restored.players[0].slug);
+      setSecondSlug(restored.players[1].slug);
+      setFollowUpQuestion("");
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : "暂时无法恢复这条分析记录。",
+      );
+    } finally {
+      setOpeningRunId(null);
+    }
+  }
+
+  async function handleFollowUp(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!result || followUpQuestion.trim().length < 6) {
+      return;
+    }
+    setFollowUpError(null);
+    setIsFollowingUp(true);
+    try {
+      const response = await runAgentFollowUp(result.run_id, {
+        question: followUpQuestion.trim(),
+        focus,
+      });
+      if (!response.data) {
+        throw new Error("Agent 没有返回追问结果");
+      }
+      setResult(response.data);
+      setQuestion(followUpQuestion.trim());
+      setFollowUpQuestion("");
+      await refreshRunHistory();
+    } catch (requestError) {
+      setFollowUpError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Agent 暂时无法完成追问。",
+      );
+    } finally {
+      setIsFollowingUp(false);
+    }
+  }
+
   return (
     <section className="agent-section" id="analysis-agent" aria-labelledby="agent-title">
       <div className="section-heading agent-heading">
@@ -157,9 +247,47 @@ export function AnalysisAgent() {
           <h2 id="agent-title">足球分析与球探决策 Agent</h2>
         </div>
         <p>
-          Agent 会自动识别分析重点、调用数据库工具并统一指标口径；配置千问后，
-          再由模型基于可追溯证据组织回答。
+          Agent 会保存每次分析、恢复历史上下文并支持连续追问；结论仍由数据库工具
+          重新计算，可一键整理为带来源与边界的球探报告。
         </p>
+      </div>
+
+      <div className="agent-notebook" aria-label="最近分析记录">
+        <div className="notebook-heading">
+          <div>
+            <span>AGENT NOTEBOOK</span>
+            <strong>最近分析记录</strong>
+          </div>
+          <small>{isLoadingRuns ? "正在读取" : `${runs.length} 条最近记录`}</small>
+        </div>
+        <div className="notebook-run-list">
+          {!isLoadingRuns && runs.length === 0 && (
+            <p className="notebook-empty">完成第一条分析后，记录会出现在这里。</p>
+          )}
+          {runs.map((run) => (
+            <button
+              className="notebook-run"
+              data-active={result?.run_id === run.run_id}
+              disabled={openingRunId !== null}
+              key={run.run_id}
+              onClick={() => void handleOpenRun(run.run_id)}
+              type="button"
+            >
+              <span>
+                {run.follow_up_depth > 0
+                  ? `FOLLOW-UP ${run.follow_up_depth}`
+                  : "NEW ANALYSIS"}
+              </span>
+              <strong>
+                {run.players[0].full_name} × {run.players[1].full_name}
+              </strong>
+              <p>{run.question}</p>
+              <small>
+                {run.focus_label} · {formatRunTime(run.created_at)}
+              </small>
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="agent-workspace">
@@ -175,7 +303,7 @@ export function AnalysisAgent() {
             >
               {capabilities?.qwen_configured
                 ? `${capabilities.model} · ONLINE`
-                : "LOCAL SAFE MODE · v0.8"}
+                : "LOCAL SAFE MODE · v0.9"}
             </span>
           </div>
 
@@ -323,6 +451,14 @@ export function AnalysisAgent() {
                 <code>{result.run_id}</code>
               </div>
 
+              {result.context.inherited_scope && (
+                <div className="memory-banner">
+                  <span>CONTEXT RESTORED</span>
+                  <p>{result.context.note}</p>
+                  <code>{result.context.parent_run_id}</code>
+                </div>
+              )}
+
               <article className="recommendation-card">
                 <div
                   className="generation-banner"
@@ -367,6 +503,12 @@ export function AnalysisAgent() {
                       {Math.round(result.recommendation.confidence * 100)}%
                     </strong>
                   </div>
+                </div>
+                <div className="result-actions">
+                  <Link href={`/reports/${result.run_id}`}>
+                    打开球探报告
+                  </Link>
+                  <span>可打印或保存为 PDF</span>
                 </div>
               </article>
 
@@ -443,6 +585,34 @@ export function AnalysisAgent() {
                   ))}
                 </div>
               </div>
+
+              <form className="follow-up-panel" onSubmit={handleFollowUp}>
+                <div>
+                  <span>FOLLOW-UP</span>
+                  <strong>基于这次分析继续追问</strong>
+                  <p>沿用同一组球员与赛季，按上方分析重点重新计算。</p>
+                </div>
+                <textarea
+                  aria-label="追问内容"
+                  maxLength={500}
+                  onChange={(event) => setFollowUpQuestion(event.target.value)}
+                  placeholder="例如：如果更重视创造机会，结论会改变吗？"
+                  rows={3}
+                  value={followUpQuestion}
+                  disabled={isFollowingUp}
+                />
+                {followUpError && (
+                  <p className="agent-error" role="alert">
+                    {followUpError}
+                  </p>
+                )}
+                <button
+                  type="submit"
+                  disabled={isFollowingUp || followUpQuestion.trim().length < 6}
+                >
+                  {isFollowingUp ? "正在读取上下文并重新计算" : "提交追问"}
+                </button>
+              </form>
 
               <div className="limitations">
                 <strong>结论边界</strong>

@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
@@ -39,6 +40,11 @@ class AgentAnalysisRequest(BaseModel):
         if value is not None and len(set(value)) != len(value):
             raise ValueError("请选择两名不同的球员")
         return value
+
+
+class AgentFollowUpRequest(BaseModel):
+    question: str = Field(min_length=6, max_length=500)
+    focus: AgentRequestedFocus = "auto"
 
 
 class AgentPlayerOption(BaseModel):
@@ -114,6 +120,15 @@ class AgentCapabilitiesData(BaseModel):
     message: str
 
 
+class AgentRunContext(BaseModel):
+    parent_run_id: str | None = None
+    follow_up_depth: int = Field(default=0, ge=0)
+    parent_question: str | None = None
+    parent_headline: str | None = None
+    inherited_scope: bool = False
+    note: str = "本次为独立分析任务。"
+
+
 class AgentAnalysisData(BaseModel):
     run_id: str
     task_type: Literal["player_comparison"]
@@ -130,3 +145,38 @@ class AgentAnalysisData(BaseModel):
     generation: AgentGeneration
     limitations: list[str]
     sample_notice: str
+    context: AgentRunContext = Field(default_factory=AgentRunContext)
+
+
+class AgentRunSummary(BaseModel):
+    run_id: str
+    parent_run_id: str | None
+    follow_up_depth: int
+    created_at: datetime
+    question: str
+    season: str
+    focus: AgentFocus
+    focus_label: str
+    players: list[AgentPlayerProfile]
+    winner_slug: str
+    generation_mode: AgentGenerationMode
+
+
+class AgentRunListData(BaseModel):
+    items: list[AgentRunSummary]
+    total: int
+    limit: int
+    offset: int
+    storage_notice: str
+
+
+class AgentRunDetailData(BaseModel):
+    run_id: str
+    parent_run_id: str | None
+    follow_up_depth: int
+    created_at: datetime
+    result: AgentAnalysisData
+    source_name: str
+    source_url: str
+    source_note: str
+    storage_notice: str

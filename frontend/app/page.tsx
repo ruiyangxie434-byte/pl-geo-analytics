@@ -7,9 +7,9 @@ import { BackendStatus } from "../components/system/backend-status";
 
 const futureModules = [
   {
-    phase: "v0.8 已上线",
-    title: "真实比赛实验室",
-    description: "公开事件快照、双队射门图、xG 对比、进球时间线与来源边界已经打通。",
+    phase: "v0.9 已上线",
+    title: "Agent 分析笔记本",
+    description: "分析记录、上下文追问、历史恢复与打印版球探报告已经打通。",
   },
   {
     phase: "阶段 8",
@@ -38,7 +38,7 @@ export default function Home() {
             </span>
           </Link>
           <span className="phase-badge">
-            v0.8.0 · Match Lab
+            v0.9.0 · Agent Notebook
           </span>
         </header>
 
@@ -86,7 +86,7 @@ export default function Home() {
               <p className="eyebrow">BUILD ROADMAP</p>
               <h2 id="roadmap-title">接下来做什么</h2>
             </div>
-            <p>地图、联赛终榜、球员分析与真实比赛事件链路已经打通，下一步面向 v1.0 完善发布质量。</p>
+            <p>地图、球员、比赛与可追问 Agent 报告链路已经打通，下一步面向 v1.0 完善发布质量。</p>
           </div>
 
           <div className="module-grid">
