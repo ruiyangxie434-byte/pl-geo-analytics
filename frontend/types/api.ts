@@ -360,6 +360,15 @@ export interface AgentCapabilitiesData {
   message: string;
 }
 
+export interface AgentRunContext {
+  parent_run_id: string | null;
+  follow_up_depth: number;
+  parent_question: string | null;
+  parent_headline: string | null;
+  inherited_scope: boolean;
+  note: string;
+}
+
 export interface AgentAnalysisData {
   run_id: string;
   task_type: "player_comparison";
@@ -376,6 +385,7 @@ export interface AgentAnalysisData {
   generation: AgentGeneration;
   limitations: string[];
   sample_notice: string;
+  context: AgentRunContext;
 }
 
 export interface AgentAnalysisRequest {
@@ -383,4 +393,43 @@ export interface AgentAnalysisRequest {
   player_slugs: [string, string];
   season: string;
   focus: AgentRequestedFocus;
+}
+
+export interface AgentFollowUpRequest {
+  question: string;
+  focus: AgentRequestedFocus;
+}
+
+export interface AgentRunSummary {
+  run_id: string;
+  parent_run_id: string | null;
+  follow_up_depth: number;
+  created_at: string;
+  question: string;
+  season: string;
+  focus: AgentFocus;
+  focus_label: string;
+  players: AgentPlayerProfile[];
+  winner_slug: string;
+  generation_mode: "local_rules" | "qwen_enhanced";
+}
+
+export interface AgentRunListData {
+  items: AgentRunSummary[];
+  total: number;
+  limit: number;
+  offset: number;
+  storage_notice: string;
+}
+
+export interface AgentRunDetailData {
+  run_id: string;
+  parent_run_id: string | null;
+  follow_up_depth: number;
+  created_at: string;
+  result: AgentAnalysisData;
+  source_name: string;
+  source_url: string;
+  source_note: string;
+  storage_notice: string;
 }

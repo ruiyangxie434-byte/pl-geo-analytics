@@ -2,7 +2,10 @@ import type {
   AgentAnalysisData,
   AgentAnalysisRequest,
   AgentCapabilitiesData,
+  AgentFollowUpRequest,
   AgentPlayerOptionData,
+  AgentRunDetailData,
+  AgentRunListData,
   ApiResponse,
   ClubDetailData,
   ClubListData,
@@ -171,6 +174,51 @@ export async function runAgentAnalysis(
   const body = (await response.json()) as ApiResponse<AgentAnalysisData>;
   if (!response.ok) {
     throw new Error(body.message || `Agent 请求失败：HTTP ${response.status}`);
+  }
+  return body;
+}
+
+export function getAgentRuns(
+  limit = 8,
+  signal?: AbortSignal,
+): Promise<ApiResponse<AgentRunListData>> {
+  return getApiData<AgentRunListData>(
+    `/agent/runs?limit=${limit}&offset=0`,
+    signal,
+  );
+}
+
+export function getAgentRun(
+  runId: string,
+  signal?: AbortSignal,
+): Promise<ApiResponse<AgentRunDetailData>> {
+  return getApiData<AgentRunDetailData>(
+    `/agent/runs/${encodeURIComponent(runId)}`,
+    signal,
+  );
+}
+
+export async function runAgentFollowUp(
+  runId: string,
+  payload: AgentFollowUpRequest,
+  signal?: AbortSignal,
+): Promise<ApiResponse<AgentAnalysisData>> {
+  const response = await fetch(
+    `${API_BASE_URL}/agent/runs/${encodeURIComponent(runId)}/follow-up`,
+    {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+      cache: "no-store",
+      signal,
+    },
+  );
+  const body = (await response.json()) as ApiResponse<AgentAnalysisData>;
+  if (!response.ok) {
+    throw new Error(body.message || `追问失败：HTTP ${response.status}`);
   }
   return body;
 }
